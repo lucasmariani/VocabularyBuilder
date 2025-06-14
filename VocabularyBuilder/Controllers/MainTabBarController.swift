@@ -1,0 +1,57 @@
+import UIKit
+import SwiftData
+
+class MainTabBarController: UITabBarController {
+    private let modelContainer: ModelContainer
+
+    init(modelContainer: ModelContainer) {
+        self.modelContainer = modelContainer
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        print("MainTabBarController viewDidLoad")
+        setupTabBar()
+        setupViewControllers()
+    }
+    
+    private func setupTabBar() {
+//        tabBar.backgroundColor = .systemBackground
+        tabBar.tintColor = .black
+//        tabBar.unselectedItemTintColor = .systemGray
+    }
+    
+    private func setupViewControllers() {
+        print("Setting up view controllers")
+        
+        // Camera Tab
+        let cameraViewController = CameraViewController(modelContainer: modelContainer)
+        let cameraNavController = UINavigationController(rootViewController: cameraViewController)
+        cameraNavController.navigationItem.largeTitleDisplayMode = .never
+        cameraNavController.tabBarItem = UITabBarItem(
+            title: "Scan",
+            image: UIImage(systemName: "camera"),
+            selectedImage: UIImage(systemName: "camera.fill")
+        )
+        
+        // Vocabulary Tab
+        let vocabularyViewController = VocabularyListViewController(modelContainer: modelContainer)
+        let vocabularyNavController = UINavigationController(rootViewController: vocabularyViewController)
+        vocabularyNavController.navigationItem.largeTitleDisplayMode = .never
+        vocabularyNavController.tabBarItem = UITabBarItem(
+            title: "Vocabulary",
+            image: UIImage(systemName: "book"),
+            selectedImage: UIImage(systemName: "book.fill")
+        )
+        
+        viewControllers = [cameraNavController, vocabularyNavController]
+        print("View controllers set: \(viewControllers?.count ?? 0)")
+    }
+}
+
