@@ -7,7 +7,7 @@ class CameraService: NSObject, ObservableObject {
     @Published var isAuthorized = false
     @Published var capturedImage: UIImage?
     @Published var isCapturing = false
-    
+
     private var captureSession: AVCaptureSession?
     private var photoOutput: AVCapturePhotoOutput?
     private var videoPreviewLayer: AVCaptureVideoPreviewLayer?
@@ -32,15 +32,15 @@ class CameraService: NSObject, ObservableObject {
         }
 
         // Enable macro photography if available
-//        if #available(iOS 15.0, *) {
-//            if videoDevice.isMacroModeSupported {
-//                // Enable automatic macro switching
-//                videoDevice.automaticallyAdjustsMacroMode = true
-//                print("Macro mode enabled and set to automatic")
-//            } else {
-//                print("Macro mode not supported on this device")
-//            }
-//        }
+        //        if #available(iOS 15.0, *) {
+        //            if videoDevice.isMacroModeSupported {
+        //                // Enable automatic macro switching
+        //                videoDevice.automaticallyAdjustsMacroMode = true
+        //                print("Macro mode enabled and set to automatic")
+        //            } else {
+        //                print("Macro mode not supported on this device")
+        //            }
+        //        }
 
         // Set focus point of interest to center
         if videoDevice.isFocusPointOfInterestSupported {
@@ -67,7 +67,7 @@ class CameraService: NSObject, ObservableObject {
             isAuthorized = false
         }
     }
-    
+
     private func requestCameraPermission() {
         AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
             Task { @MainActor in
@@ -75,15 +75,15 @@ class CameraService: NSObject, ObservableObject {
             }
         }
     }
-    
+
     func setupCameraSession() -> AVCaptureVideoPreviewLayer? {
         guard isAuthorized else { return nil }
-        
+
         let session = AVCaptureSession()
         session.beginConfiguration()
-        
+
         session.sessionPreset = .photo
-        
+
         guard let selectedDevice = getBestCameraDevice(),
               let videoDeviceInput = try? AVCaptureDeviceInput(device: selectedDevice),
               session.canAddInput(videoDeviceInput) else {
@@ -93,71 +93,71 @@ class CameraService: NSObject, ObservableObject {
         videoDevice = selectedDevice
 
         session.addInput(videoDeviceInput)
-        
+
         let photoOutput = AVCapturePhotoOutput()
         guard session.canAddOutput(photoOutput) else { return nil }
-        
+
         session.addOutput(photoOutput)
         self.photoOutput = photoOutput
-        
+
         session.commitConfiguration()
         self.captureSession = session
-        
+
         let previewLayer = AVCaptureVideoPreviewLayer(session: session)
         previewLayer.videoGravity = .resizeAspectFill
         self.videoPreviewLayer = previewLayer
-        
+
         return previewLayer
     }
 
     private func getBestCameraDevice() -> AVCaptureDevice? {
         // First try to get the triple camera (supports macro on iPhone 13 Pro and later)
         if let tripleCamera = AVCaptureDevice.default(.builtInTripleCamera,
-                                                    for: .video,
-                                                    position: .back) {
+                                                      for: .video,
+                                                      position: .back) {
             return tripleCamera
         }
 
         // Fall back to dual wide camera
         if let dualWideCamera = AVCaptureDevice.default(.builtInDualWideCamera,
-                                                       for: .video,
-                                                       position: .back) {
+                                                        for: .video,
+                                                        position: .back) {
             return dualWideCamera
         }
 
         // Fall back to wide angle camera
         return AVCaptureDevice.default(.builtInWideAngleCamera,
-                                     for: .video,
-                                     position: .back)
+                                       for: .video,
+                                       position: .back)
     }
 
     func startSession() {
         guard let captureSession = captureSession else { return }
-        
+
         if !captureSession.isRunning {
             Task.detached {
                 captureSession.startRunning()
             }
         }
     }
-    
+
     func stopSession() {
         guard let captureSession = captureSession else { return }
-        
+
         if captureSession.isRunning {
             Task.detached {
                 captureSession.stopRunning()
             }
         }
     }
-    
+
     func capturePhoto() {
         guard let photoOutput = photoOutput else { return }
-        
+
         isCapturing = true
         let settings = AVCapturePhotoSettings()
         settings.flashMode = .on
-        
+
         Task.detached { [weak self] in
             guard let self = self else { return }
             photoOutput.capturePhoto(with: settings, delegate: self)
@@ -168,17 +168,17 @@ class CameraService: NSObject, ObservableObject {
 extension CameraService: AVCapturePhotoCaptureDelegate {
     nonisolated func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         Task { @MainActor in
-            defer { 
+            defer {
                 self.isCapturing = false
             }
-            
+
             guard error == nil,
                   let imageData = photo.fileDataRepresentation(),
                   let image = UIImage(data: imageData) else {
                 print("Error capturing photo: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
-            
+
             self.capturedImage = image
         }
     }

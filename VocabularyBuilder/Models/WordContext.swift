@@ -8,9 +8,9 @@ final class WordContext {
     var pageNumber: Int?
     var capturedImageData: Data?
     var dateAdded: Date
-    
+
     @Relationship(inverse: \VocabularyWord.contexts) var vocabularyWord: VocabularyWord?
-    
+
     init(sentence: String, bookTitle: String? = nil, pageNumber: Int? = nil, capturedImageData: Data? = nil) {
         self.sentence = sentence
         self.bookTitle = bookTitle

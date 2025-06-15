@@ -10,9 +10,9 @@ final class VocabularyWord {
     var dateAdded: Date
     var masteryLevel: Int = 0
     var studyCount: Int = 0
-    
+
     @Relationship(deleteRule: .cascade) var contexts: [WordContext] = []
-    
+
     init(word: String, definition: String, partOfSpeech: String? = nil, pronunciation: String? = nil) {
         self.word = word
         self.definition = definition

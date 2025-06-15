@@ -4,7 +4,7 @@ import SwiftData
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
-    
+
     lazy var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             VocabularyWord.self,

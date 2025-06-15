@@ -6,7 +6,7 @@ struct OCRResult {
     let confidence: Float
     let boundingBox: CGRect
     let textObservations: [RecognizedTextObservation]
-    
+
     init(recognizedText: String, confidence: Float, boundingBox: CGRect, textObservations: [RecognizedTextObservation]) {
         self.recognizedText = recognizedText
         self.confidence = confidence

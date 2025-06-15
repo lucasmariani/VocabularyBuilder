@@ -14,9 +14,6 @@ class WordSelectionViewController: UIViewController {
         textView.text = ocrResult.recognizedText
         textView.isEditable = false
         textView.font = UIFont.systemFont(ofSize: 16)
-//        textView.layer.borderColor = UIColor.systemGray4.cgColor
-//        textView.layer.borderWidth = 1
-//        textView.layer.cornerRadius = 8
         textView.translatesAutoresizingMaskIntoConstraints = false
         return textView
     }()

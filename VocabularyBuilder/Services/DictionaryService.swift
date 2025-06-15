@@ -5,11 +5,11 @@ struct DictionaryEntry {
     let word: String
     let phonetic: String?
     let meanings: [Meaning]
-    
+
     struct Meaning {
         let partOfSpeech: String
         let definitions: [Definition]
-        
+
         struct Definition {
             let definition: String
             let example: String?
@@ -22,15 +22,15 @@ struct DictionaryEntry {
 class DictionaryService: ObservableObject {
     private let session = URLSession.shared
     private var cancellables = Set<AnyCancellable>()
-    
+
     @Published var isLoading = false
-    
+
     nonisolated func fetchDefinition(for word: String) -> AnyPublisher<DictionaryEntry, Error> {
         return Future<DictionaryEntry, Error> { [weak self] promise in
             Task { @MainActor [weak self] in
                 self?.isLoading = true
             }
-            
+
             guard let url = URL(string: "https://api.dictionaryapi.dev/api/v2/entries/en/\(word.lowercased())") else {
                 Task { @MainActor [weak self] in
                     self?.isLoading = false
@@ -38,35 +38,35 @@ class DictionaryService: ObservableObject {
                 promise(.failure(DictionaryError.invalidURL))
                 return
             }
-            
+
             URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
                 defer {
                     Task { @MainActor [weak self] in
                         self?.isLoading = false
                     }
                 }
-                
+
                 if let error = error {
                     promise(.failure(error))
                     return
                 }
-                
+
                 guard let data = data else {
                     promise(.failure(DictionaryError.noData))
                     return
                 }
-                
+
                 do {
                     let apiResponse = try JSONDecoder().decode([DictionaryAPIResponse].self, from: data)
-                    
+
                     guard let firstEntry = apiResponse.first else {
                         promise(.failure(DictionaryError.wordNotFound))
                         return
                     }
-                    
+
                     let dictionaryEntry = self?.convertAPIResponse(firstEntry) ?? DictionaryEntry(word: word, phonetic: nil, meanings: [])
                     promise(.success(dictionaryEntry))
-                    
+
                 } catch {
                     promise(.failure(DictionaryError.parsingError))
                 }
@@ -74,7 +74,7 @@ class DictionaryService: ObservableObject {
         }
         .eraseToAnyPublisher()
     }
-    
+
     func fetchDefinitionMock(for word: String) -> AnyPublisher<DictionaryEntry, Error> {
         let mockEntry = DictionaryEntry(
             word: word,
@@ -92,12 +92,12 @@ class DictionaryService: ObservableObject {
                 )
             ]
         )
-        
+
         return Just(mockEntry)
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
     }
-    
+
     nonisolated private func convertAPIResponse(_ response: DictionaryAPIResponse) -> DictionaryEntry {
         let meanings = response.meanings.map { meaning in
             let definitions = meaning.definitions.map { definition in
@@ -107,13 +107,13 @@ class DictionaryService: ObservableObject {
                     synonyms: definition.synonyms ?? []
                 )
             }
-            
+
             return DictionaryEntry.Meaning(
                 partOfSpeech: meaning.partOfSpeech,
                 definitions: definitions
             )
         }
-        
+
         return DictionaryEntry(
             word: response.word,
             phonetic: response.phonetic,
@@ -126,11 +126,11 @@ private struct DictionaryAPIResponse: Codable {
     let word: String
     let phonetic: String?
     let meanings: [APIResponseMeaning]
-    
+
     struct APIResponseMeaning: Codable {
         let partOfSpeech: String
         let definitions: [APIResponseDefinition]
-        
+
         struct APIResponseDefinition: Codable {
             let definition: String
             let example: String?
@@ -144,7 +144,7 @@ enum DictionaryError: Error, LocalizedError {
     case noData
     case wordNotFound
     case parsingError
-    
+
     var errorDescription: String? {
         switch self {
         case .invalidURL:

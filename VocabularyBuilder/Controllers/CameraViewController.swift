@@ -8,7 +8,7 @@ class CameraViewController: UIViewController {
     private let cameraService = CameraService()
     private let ocrService = OCRService()
     private var previewLayer: AVCaptureVideoPreviewLayer?
-
+    
     init(modelContainer: ModelContainer) {
         self.modelContainer = modelContainer
         super.init(nibName: nil, bundle: nil)
@@ -20,8 +20,8 @@ class CameraViewController: UIViewController {
     
     private lazy var captureButton: UIButton = {
         let button = UIButton(type: .system)
-//        button.setTitle("Capture", for: .normal)
-//        button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        //        button.setTitle("Capture", for: .normal)
+        //        button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         var config = UIButton.Configuration.filled()
         config.title = "Capture"
         config.cornerStyle = .capsule
@@ -31,10 +31,10 @@ class CameraViewController: UIViewController {
         config.buttonSize = .large
         button.configuration = config
         button.configuration = .glass()
-
-//        button.backgroundColor = .systemBlue
-//        button.setTitleColor(.white, for: .normal)
-//        button.layer.cornerRadius = 25
+        
+        //        button.backgroundColor = .systemBlue
+        //        button.setTitleColor(.white, for: .normal)
+        //        button.layer.cornerRadius = 25
         button.addTarget(self, action: #selector(captureButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -82,7 +82,7 @@ class CameraViewController: UIViewController {
             
             captureButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             captureButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-//            captureButton.widthAnchor.constraint(equalToConstant: 100),
+            //            captureButton.widthAnchor.constraint(equalToConstant: 100),
             captureButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
@@ -111,8 +111,6 @@ class CameraViewController: UIViewController {
                 var config = self?.captureButton.configuration
                 config?.title = isCapturing ? "Processing..." : "Capture"
                 self?.captureButton.configuration = config
-
-//                self?.captureButton.setTitle(isCapturing ? "Processing..." : "Capture", for: .normal)
             }
             .store(in: &cancellables)
     }
@@ -141,22 +139,22 @@ class CameraViewController: UIViewController {
             } else {
                 print("obs no result")
             }
-
+            
         }
-//        ocrService.recognizeText(from: image)
-//            .receive(on: DispatchQueue.main)
-//            .sink(
-//                receiveCompletion: { completion in
-//                    if case .failure(let error) = completion {
-//                        print("OCR Error: \(error)")
-//                        // Handle error - could show alert
-//                    }
-//                },
-//                receiveValue: { [weak self] result in
-//                    self?.showWordSelectionView(with: image, ocrResult: result)
-//                }
-//            )
-//            .store(in: &cancellables)
+        //        ocrService.recognizeText(from: image)
+        //            .receive(on: DispatchQueue.main)
+        //            .sink(
+        //                receiveCompletion: { completion in
+        //                    if case .failure(let error) = completion {
+        //                        print("OCR Error: \(error)")
+        //                        // Handle error - could show alert
+        //                    }
+        //                },
+        //                receiveValue: { [weak self] result in
+        //                    self?.showWordSelectionView(with: image, ocrResult: result)
+        //                }
+        //            )
+        //            .store(in: &cancellables)
     }
     
     private func showWordSelectionView(with image: UIImage, ocrResult: OCRResult) {

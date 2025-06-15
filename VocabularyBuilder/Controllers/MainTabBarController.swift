@@ -12,24 +12,24 @@ class MainTabBarController: UITabBarController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         print("MainTabBarController viewDidLoad")
         setupTabBar()
         setupViewControllers()
     }
-    
+
     private func setupTabBar() {
-//        tabBar.backgroundColor = .systemBackground
+        //        tabBar.backgroundColor = .systemBackground
         tabBar.tintColor = .black
-//        tabBar.unselectedItemTintColor = .systemGray
+        //        tabBar.unselectedItemTintColor = .systemGray
     }
-    
+
     private func setupViewControllers() {
         print("Setting up view controllers")
-        
+
         // Camera Tab
         let cameraViewController = CameraViewController(modelContainer: modelContainer)
         let cameraNavController = UINavigationController(rootViewController: cameraViewController)
@@ -39,7 +39,7 @@ class MainTabBarController: UITabBarController {
             image: UIImage(systemName: "camera"),
             selectedImage: UIImage(systemName: "camera.fill")
         )
-        
+
         // Vocabulary Tab
         let vocabularyViewController = VocabularyListViewController(modelContainer: modelContainer)
         let vocabularyNavController = UINavigationController(rootViewController: vocabularyViewController)
@@ -49,7 +49,7 @@ class MainTabBarController: UITabBarController {
             image: UIImage(systemName: "book"),
             selectedImage: UIImage(systemName: "book.fill")
         )
-        
+
         viewControllers = [cameraNavController, vocabularyNavController]
         print("View controllers set: \(viewControllers?.count ?? 0)")
     }
