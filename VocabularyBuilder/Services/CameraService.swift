@@ -1,12 +1,13 @@
 import UIKit
 @preconcurrency import AVFoundation
-import Combine
+import Observation
 
+@Observable
 @MainActor
-class CameraService: NSObject, ObservableObject {
-    @Published var isAuthorized = false
-    @Published var capturedImage: UIImage?
-    @Published var isCapturing = false
+class CameraService: NSObject {
+    var isAuthorized = false
+    var capturedImage: UIImage?
+    var isCapturing = false
 
     private var captureSession: AVCaptureSession?
     private var photoOutput: AVCapturePhotoOutput?
@@ -30,17 +31,6 @@ class CameraService: NSObject, ObservableObject {
         } else if videoDevice.isFocusModeSupported(.autoFocus) {
             videoDevice.focusMode = .autoFocus
         }
-
-        // Enable macro photography if available
-        //        if #available(iOS 15.0, *) {
-        //            if videoDevice.isMacroModeSupported {
-        //                // Enable automatic macro switching
-        //                videoDevice.automaticallyAdjustsMacroMode = true
-        //                print("Macro mode enabled and set to automatic")
-        //            } else {
-        //                print("Macro mode not supported on this device")
-        //            }
-        //        }
 
         // Set focus point of interest to center
         if videoDevice.isFocusPointOfInterestSupported {

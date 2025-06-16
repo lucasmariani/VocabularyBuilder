@@ -1,5 +1,5 @@
 import Foundation
-import Combine
+import Observation
 
 struct DictionaryEntry {
     let word: String
@@ -18,64 +18,43 @@ struct DictionaryEntry {
     }
 }
 
+@Observable
 @MainActor
-class DictionaryService: ObservableObject {
+class DictionaryService {
     private let session = URLSession.shared
-    private var cancellables = Set<AnyCancellable>()
 
-    @Published var isLoading = false
+    var isLoading = false
 
-    nonisolated func fetchDefinition(for word: String) -> AnyPublisher<DictionaryEntry, Error> {
-        return Future<DictionaryEntry, Error> { [weak self] promise in
-            Task { @MainActor [weak self] in
-                self?.isLoading = true
-            }
-
-            guard let url = URL(string: "https://api.dictionaryapi.dev/api/v2/entries/en/\(word.lowercased())") else {
-                Task { @MainActor [weak self] in
-                    self?.isLoading = false
-                }
-                promise(.failure(DictionaryError.invalidURL))
-                return
-            }
-
-            URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-                defer {
-                    Task { @MainActor [weak self] in
-                        self?.isLoading = false
-                    }
-                }
-
-                if let error = error {
-                    promise(.failure(error))
-                    return
-                }
-
-                guard let data = data else {
-                    promise(.failure(DictionaryError.noData))
-                    return
-                }
-
-                do {
-                    let apiResponse = try JSONDecoder().decode([DictionaryAPIResponse].self, from: data)
-
-                    guard let firstEntry = apiResponse.first else {
-                        promise(.failure(DictionaryError.wordNotFound))
-                        return
-                    }
-
-                    let dictionaryEntry = self?.convertAPIResponse(firstEntry) ?? DictionaryEntry(word: word, phonetic: nil, meanings: [])
-                    promise(.success(dictionaryEntry))
-
-                } catch {
-                    promise(.failure(DictionaryError.parsingError))
-                }
-            }.resume()
+    func fetchDefinition(for word: String) async throws -> DictionaryEntry {
+        isLoading = true
+        
+        defer {
+            isLoading = false
         }
-        .eraseToAnyPublisher()
+        
+        guard let url = URL(string: "https://api.dictionaryapi.dev/api/v2/entries/en/\(word.lowercased())") else {
+            throw DictionaryError.invalidURL
+        }
+        
+        do {
+            let (data, _) = try await session.data(from: url)
+            
+            let apiResponse = try JSONDecoder().decode([DictionaryAPIResponse].self, from: data)
+            
+            guard let firstEntry = apiResponse.first else {
+                throw DictionaryError.wordNotFound
+            }
+            
+            return convertAPIResponse(firstEntry)
+            
+        } catch is DecodingError {
+            throw DictionaryError.parsingError
+        } catch {
+            throw error
+        }
     }
 
-    func fetchDefinitionMock(for word: String) -> AnyPublisher<DictionaryEntry, Error> {
+    func fetchDefinitionMock(for word: String) async -> DictionaryEntry {
         let mockEntry = DictionaryEntry(
             word: word,
             phonetic: "/\(word)/",
@@ -93,12 +72,10 @@ class DictionaryService: ObservableObject {
             ]
         )
 
-        return Just(mockEntry)
-            .setFailureType(to: Error.self)
-            .eraseToAnyPublisher()
+        return mockEntry
     }
 
-    nonisolated private func convertAPIResponse(_ response: DictionaryAPIResponse) -> DictionaryEntry {
+    private func convertAPIResponse(_ response: DictionaryAPIResponse) -> DictionaryEntry {
         let meanings = response.meanings.map { meaning in
             let definitions = meaning.definitions.map { definition in
                 DictionaryEntry.Meaning.Definition(

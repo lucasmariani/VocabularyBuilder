@@ -3,6 +3,7 @@ import SwiftData
 
 class MainTabBarController: UITabBarController {
     private let modelContainer: ModelContainer
+    private let ocrServiceManager = OCRServiceManager()
 
     init(modelContainer: ModelContainer) {
         self.modelContainer = modelContainer
@@ -31,7 +32,7 @@ class MainTabBarController: UITabBarController {
         print("Setting up view controllers")
 
         // Camera Tab
-        let cameraViewController = CameraViewController(modelContainer: modelContainer)
+        let cameraViewController = CameraViewController(modelContainer: modelContainer, ocrServiceManager: ocrServiceManager)
         let cameraNavController = UINavigationController(rootViewController: cameraViewController)
         cameraNavController.navigationItem.largeTitleDisplayMode = .never
         cameraNavController.tabBarItem = UITabBarItem(
@@ -41,7 +42,7 @@ class MainTabBarController: UITabBarController {
         )
 
         // Vocabulary Tab
-        let vocabularyViewController = VocabularyListViewController(modelContainer: modelContainer)
+        let vocabularyViewController = VocabularyListViewController(modelContainer: modelContainer, ocrServiceManager: ocrServiceManager)
         let vocabularyNavController = UINavigationController(rootViewController: vocabularyViewController)
         vocabularyNavController.navigationItem.largeTitleDisplayMode = .never
         vocabularyNavController.tabBarItem = UITabBarItem(

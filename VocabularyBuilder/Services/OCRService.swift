@@ -34,14 +34,18 @@ class OCRService: ObservableObject {
 
         var request = RecognizeTextRequest()
         request.usesLanguageCorrection = true
-        request.recognitionLanguages = [Locale(identifier: "es-CL").language]
+        request.recognitionLanguages = ["es-CL"]
         request.recognitionLevel = .accurate
 
         guard let cgImage = image.cgImage else {
             print("OBS  NO CGIMAGE")
             return nil
         }
-        if let results = try? await request.perform(on: cgImage) {
+        
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        do {
+            try handler.perform([request])
+            let results = request.results ?? []
 
             var observations = [RecognizedTextObservation]()
 
@@ -66,9 +70,9 @@ class OCRService: ObservableObject {
             self.ocrResult = result
 
             return result
-
-        } else {
-            print("obs request error")
+        } catch {
+            print("obs request error: \(error)")
+            self.isProcessing = false
             return nil
         }
 
@@ -143,7 +147,7 @@ class OCRService: ObservableObject {
             let words = candidate.string.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
 
             for word in words {
-                wordsWithBounds.append((word: word, bounds: observation.boundingBox.cgRect))
+                wordsWithBounds.append((word: word, bounds: observation.boundingBox))
             }
         }
 
@@ -159,7 +163,7 @@ class OCRService: ObservableObject {
         var maxY: CGFloat = 0.0
 
         for observation in observations {
-            let bounds = observation.boundingBox.cgRect
+            let bounds = observation.boundingBox
             minX = min(minX, bounds.minX)
             minY = min(minY, bounds.minY)
             maxX = max(maxX, bounds.maxX)

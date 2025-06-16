@@ -1,12 +1,10 @@
 import UIKit
 import SwiftData
-import Combine
 
 class WordSelectionViewController: UIViewController {
     private let capturedImage: UIImage
     private let ocrResult: OCRResult
     private var dictionaryService = DictionaryService()
-    private var cancellables = Set<AnyCancellable>()
     private let modelContainer: ModelContainer
 
     private lazy var textView: UITextView = {
@@ -98,25 +96,25 @@ class WordSelectionViewController: UIViewController {
     }
 
     private func addWordToVocabulary(_ word: String) {
-        let loadingAlert = UIAlertController(title: "Loading...", message: "Fetching definition", preferredStyle: .alert)
-        present(loadingAlert, animated: true)
-
-        dictionaryService.fetchDefinition(for: word)
-            .receive(on: DispatchQueue.main)
-            .sink(
-                receiveCompletion: { [weak self] completion in
+        Task {
+            let loadingAlert = UIAlertController(title: "Loading...", message: "Fetching definition", preferredStyle: .alert)
+            await MainActor.run {
+                present(loadingAlert, animated: true)
+            }
+            
+            do {
+                let dictionaryEntry = try await dictionaryService.fetchDefinition(for: word)
+                await MainActor.run {
                     loadingAlert.dismiss(animated: true)
-
-                    if case .failure(let error) = completion {
-                        self?.showError("Could not fetch definition: \(error.localizedDescription)")
-                    }
-                },
-                receiveValue: { [weak self] dictionaryEntry in
-                    loadingAlert.dismiss(animated: true)
-                    self?.saveWordToDatabase(word: word, dictionaryEntry: dictionaryEntry)
+                    saveWordToDatabase(word: word, dictionaryEntry: dictionaryEntry)
                 }
-            )
-            .store(in: &cancellables)
+            } catch {
+                await MainActor.run {
+                    loadingAlert.dismiss(animated: true)
+                    showError("Could not fetch definition: \(error.localizedDescription)")
+                }
+            }
+        }
     }
 
     private func saveWordToDatabase(word: String, dictionaryEntry: DictionaryEntry) {

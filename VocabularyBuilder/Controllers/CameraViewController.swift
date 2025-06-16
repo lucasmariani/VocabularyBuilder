@@ -1,16 +1,17 @@
 import UIKit
 import AVFoundation
-import Combine
+import Observation
 import SwiftData
 
 class CameraViewController: UIViewController {
     private let modelContainer: ModelContainer
     private let cameraService = CameraService()
-    private let ocrService = OCRService()
+    private let ocrServiceManager: OCRServiceManager
     private var previewLayer: AVCaptureVideoPreviewLayer?
     
-    init(modelContainer: ModelContainer) {
+    init(modelContainer: ModelContainer, ocrServiceManager: OCRServiceManager) {
         self.modelContainer = modelContainer
+        self.ocrServiceManager = ocrServiceManager
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -50,6 +51,7 @@ class CameraViewController: UIViewController {
         return label
     }()
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -82,37 +84,63 @@ class CameraViewController: UIViewController {
             
             captureButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             captureButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            //            captureButton.widthAnchor.constraint(equalToConstant: 100),
             captureButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
     private func setupBindings() {
-        cameraService.$isAuthorized
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isAuthorized in
-                self?.permissionLabel.isHidden = isAuthorized
-                self?.captureButton.isHidden = !isAuthorized
+        startObservingCameraService()
+        startObservingOCRService()
+    }
+    
+    private func startObservingCameraService() {
+        withObservationTracking {
+            // Access the properties we want to observe
+            _ = cameraService.isAuthorized
+            _ = cameraService.capturedImage
+            _ = cameraService.isCapturing
+        } onChange: {
+            Task { @MainActor in
+                self.updateCameraUI()
+                self.startObservingCameraService() // Re-establish tracking
             }
-            .store(in: &cancellables)
+        }
+    }
+    
+    private func startObservingOCRService() {
+        withObservationTracking {
+            // Access the properties we want to observe
+            _ = ocrServiceManager.isProcessing
+        } onChange: {
+            Task { @MainActor in
+                self.updateOCRUI()
+                self.startObservingOCRService() // Re-establish tracking
+            }
+        }
+    }
+    
+    private func updateCameraUI() {
+        permissionLabel.isHidden = cameraService.isAuthorized
+        captureButton.isHidden = !cameraService.isAuthorized
         
-        cameraService.$capturedImage
-            .compactMap { $0 }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] image in
-                self?.processCapturedImage(image)
-            }
-            .store(in: &cancellables)
+        if let capturedImage = cameraService.capturedImage {
+            processCapturedImage(capturedImage)
+        }
         
-        cameraService.$isCapturing
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isCapturing in
-                self?.captureButton.isEnabled = !isCapturing
-                var config = self?.captureButton.configuration
-                config?.title = isCapturing ? "Processing..." : "Capture"
-                self?.captureButton.configuration = config
-            }
-            .store(in: &cancellables)
+        captureButton.isEnabled = !cameraService.isCapturing
+        var config = captureButton.configuration
+        config?.title = cameraService.isCapturing ? "Processing..." : "Capture"
+        captureButton.configuration = config
+    }
+    
+    private func updateOCRUI() {
+        captureButton.isEnabled = !ocrServiceManager.isProcessing
+        
+        if ocrServiceManager.isProcessing {
+            var config = captureButton.configuration
+            config?.title = "Processing..."
+            captureButton.configuration = config
+        }
     }
     
     private func setupCamera() {
@@ -134,35 +162,29 @@ class CameraViewController: UIViewController {
     
     private func processCapturedImage(_ image: UIImage) {
         Task {
-            if let result = await ocrService.recognizeText(from: image) {
+            if let result = await ocrServiceManager.recognizeText(from: image) {
                 self.showWordSelectionView(with: image, ocrResult: result)
             } else {
-                print("obs no result")
+                print("OCR: No result from \(ocrServiceManager.selectedProviderType.displayName)")
+                // Show error alert
+                await MainActor.run {
+                    let alert = UIAlertController(
+                        title: "OCR Failed", 
+                        message: "Could not extract text from image using \(ocrServiceManager.selectedProviderType.displayName)", 
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    self.present(alert, animated: true)
+                }
             }
-            
         }
-        //        ocrService.recognizeText(from: image)
-        //            .receive(on: DispatchQueue.main)
-        //            .sink(
-        //                receiveCompletion: { completion in
-        //                    if case .failure(let error) = completion {
-        //                        print("OCR Error: \(error)")
-        //                        // Handle error - could show alert
-        //                    }
-        //                },
-        //                receiveValue: { [weak self] result in
-        //                    self?.showWordSelectionView(with: image, ocrResult: result)
-        //                }
-        //            )
-        //            .store(in: &cancellables)
     }
     
+    
     private func showWordSelectionView(with image: UIImage, ocrResult: OCRResult) {
-        // TODO: the text recognition should happen in the detail view. don't just pass the result.
         let wordSelectionVC = WordSelectionViewController(modelContainer: self.modelContainer, image: image, ocrResult: ocrResult)
         let navController = UINavigationController(rootViewController: wordSelectionVC)
         present(navController, animated: true)
     }
     
-    private var cancellables = Set<AnyCancellable>()
 }
