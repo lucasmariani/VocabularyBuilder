@@ -27,26 +27,26 @@ class DictionaryService {
 
     func fetchDefinition(for word: String) async throws -> DictionaryEntry {
         isLoading = true
-        
+
         defer {
             isLoading = false
         }
-        
+
         guard let url = URL(string: "https://api.dictionaryapi.dev/api/v2/entries/en/\(word.lowercased())") else {
             throw DictionaryError.invalidURL
         }
-        
+
         do {
             let (data, _) = try await session.data(from: url)
-            
+
             let apiResponse = try JSONDecoder().decode([DictionaryAPIResponse].self, from: data)
-            
+
             guard let firstEntry = apiResponse.first else {
                 throw DictionaryError.wordNotFound
             }
-            
+
             return convertAPIResponse(firstEntry)
-            
+
         } catch is DecodingError {
             throw DictionaryError.parsingError
         } catch {

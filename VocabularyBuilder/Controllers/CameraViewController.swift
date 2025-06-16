@@ -111,7 +111,7 @@ class CameraViewController: UIViewController {
         config?.title = (cameraService.isCapturing || ocrServiceManager.isProcessing) ? "Processing..." : "Capture"
         captureButton.configuration = config
     }
-    
+
     @objc private func captureButtonTapped() {
         cameraService.capturePhoto()
     }

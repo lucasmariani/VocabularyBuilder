@@ -41,7 +41,7 @@ class OCRService: ObservableObject {
             print("OBS  NO CGIMAGE")
             return nil
         }
-        
+
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
         do {
             try handler.perform([request])

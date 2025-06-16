@@ -5,7 +5,7 @@ import Foundation
 class VisionOCRProvider: OCRProvider {
     let displayName = "iOS Vision"
     let isAvailable = true
-    
+
     func recognizeText(from image: UIImage) async -> OCRResult? {
         let request = VNRecognizeTextRequest()
         request.usesLanguageCorrection = true
@@ -16,17 +16,17 @@ class VisionOCRProvider: OCRProvider {
             print("VisionOCR: No CGImage available")
             return nil
         }
-        
+
         do {
             let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
             try handler.perform([request])
             let results = request.results ?? []
-            
+
             var observations = [RecognizedTextObservation]()
             for observation in results {
                 observations.append(observation)
             }
-            
+
             let recognizedStrings = observations.compactMap { observation in
                 return observation.topCandidates(1).first?.string
             }
@@ -48,7 +48,7 @@ class VisionOCRProvider: OCRProvider {
             return nil
         }
     }
-    
+
     private func calculateOverallBoundingBox(from observations: [RecognizedTextObservation]) -> CGRect {
         guard !observations.isEmpty else { return .zero }
 

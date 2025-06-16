@@ -2,6 +2,15 @@ import UIKit
 import Observation
 
 class SettingsViewController: UIViewController {
+
+    private struct Constants {
+        static let reuseIdentifier = "SettingsViewController.ProviderCell"
+        static let providerDescriptionVision = "Apple's built-in text recognition"
+        static let providerDescriptionOpenAI = "AI-powered text extraction via OpenAI"
+        static let viewTitle = "Settings"
+        static let headerTitle = "OCR Provider"
+        static let footerTitle = "Choose how to extract text from book page images"
+    }
     private let ocrServiceManager: OCRServiceManager
 
     private struct ProviderRow {
@@ -14,9 +23,9 @@ class SettingsViewController: UIViewController {
             self.title = type.displayName
             switch type {
             case .vision:
-                self.description = "Apple's built-in text recognition"
+                self.description = Constants.providerDescriptionVision
             case .openAI:
-                self.description = "AI-powered text extraction via OpenAI"
+                self.description = Constants.providerDescriptionOpenAI
             }
         }
     }
@@ -28,7 +37,7 @@ class SettingsViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "ProviderCell")
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: Constants.reuseIdentifier)
         return tableView
     }()
 
@@ -48,7 +57,7 @@ class SettingsViewController: UIViewController {
 
     private func setupUI() {
         view.backgroundColor = .systemGroupedBackground
-        title = "Settings"
+        title = Constants.viewTitle
 
         view.addSubview(tableView)
 
@@ -68,11 +77,11 @@ extension SettingsViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return providerRows.count
+        providerRows.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "ProviderCell")
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: Constants.reuseIdentifier)
         let providerRow = providerRows[indexPath.row]
 
         cell.configurationUpdateHandler = { cell, state in
@@ -87,11 +96,11 @@ extension SettingsViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return "OCR Provider"
+        Constants.headerTitle
     }
 
     func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        return "Choose how to extract text from book page images"
+        Constants.footerTitle
     }
 }
 

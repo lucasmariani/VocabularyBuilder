@@ -101,7 +101,7 @@ class WordSelectionViewController: UIViewController {
             await MainActor.run {
                 present(loadingAlert, animated: true)
             }
-            
+
             do {
                 let dictionaryEntry = try await dictionaryService.fetchDefinition(for: word)
                 await MainActor.run {

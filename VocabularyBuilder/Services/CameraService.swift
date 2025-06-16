@@ -164,7 +164,7 @@ extension CameraService: AVCapturePhotoCaptureDelegate {
         Task { @MainActor in
             defer {
                 self.isCapturing = false
-//                self.capturedImage = nil
+                //                self.capturedImage = nil
             }
 
             guard error == nil,

@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
-    
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         return true
     }
