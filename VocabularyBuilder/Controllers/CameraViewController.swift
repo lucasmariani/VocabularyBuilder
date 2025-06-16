@@ -94,8 +94,8 @@ class CameraViewController: UIViewController {
         previewLayer?.frame = view.bounds
     }
 
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
+    override func updateProperties() {
+        super.updateProperties()
         if let newCapturedImage = cameraService.capturedImage,
            !ocrServiceManager.isProcessing {
             processCapturedImage(newCapturedImage)
