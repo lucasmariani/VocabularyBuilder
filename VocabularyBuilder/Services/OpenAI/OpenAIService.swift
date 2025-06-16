@@ -33,30 +33,34 @@ class OpenAIService {
         let base64Image = imageData.base64EncodedString()
         let dataURL = "data:image/jpeg;base64,\(base64Image)"
         
-        let request = OpenAIRequest(
-            model: "gpt-4o-mini",
-            messages: [
-                OpenAIMessage(
-                    role: "user",
-                    content: [
-                        OpenAIContent(
-                            type: "text",
-                            text: "Extract all text from this image. Return only the text content, preserving line breaks and formatting. Do not include any additional commentary or explanation.",
-                            imageUrl: nil
-                        ),
-                        OpenAIContent(
-                            type: "image_url",
-                            text: nil,
-                            imageUrl: OpenAIImageURL(url: dataURL)
-                        )
-                    ]
-                )
-            ],
-            maxTokens: 1000,
-            temperature: 0.1
+        // Build the correct request structure with proper nesting
+        let contentItems: [ContentItem] = [
+            .text(TextContent(text: "Extract all text from this image. Return only the text content, preserving line breaks and formatting. Do not include any additional commentary or explanation.")),
+            .image(ImageContent(
+                detail: "auto",
+                fileId: nil,
+                imageUrl: dataURL
+            ))
+        ]
+        
+        let inputMessage = InputMessage(
+            role: .user,
+            content: .array(contentItems),
+            type: "message"
         )
         
-        var urlRequest = URLRequest(url: URL(string: "\(baseURL)/chat/completions")!)
+        let request = ModelResponseParameter(
+            input: .array([.message(inputMessage)]),
+            model: .gpt41nano,
+            instructions: "You are an OCR assistant. Extract text from images accurately.",
+            maxOutputTokens: 1000,
+            temperature: 0.1
+        )
+
+        guard let url = URL(string: "\(baseURL)/responses") else {
+            throw OCRProviderError.invalidResponse
+        }
+        var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
@@ -64,6 +68,7 @@ class OpenAIService {
         do {
             urlRequest.httpBody = try JSONEncoder().encode(request)
         } catch {
+            print("OpenAI Encoding error: \(error)")
             throw OCRProviderError.invalidResponse
         }
         
@@ -87,13 +92,14 @@ class OpenAIService {
                 }
             }
             
-            let openAIResponse = try decoder.decode(OpenAIResponse.self, from: data)
+            let openAIResponse = try decoder.decode(ResponseModel.self, from: data)
             
-            guard let firstChoice = openAIResponse.choices.first else {
+            // Use the convenience property to extract text
+            guard let extractedText = openAIResponse.outputText else {
                 throw OCRProviderError.invalidResponse
             }
             
-            return firstChoice.message.content.trimmingCharacters(in: .whitespacesAndNewlines)
+            return extractedText.trimmingCharacters(in: .whitespacesAndNewlines)
             
         } catch let error as DecodingError {
             print("OpenAI Decoding error: \(error)")
