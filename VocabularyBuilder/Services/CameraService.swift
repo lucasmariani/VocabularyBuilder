@@ -153,6 +153,10 @@ class CameraService: NSObject {
             photoOutput.capturePhoto(with: settings, delegate: self)
         }
     }
+
+    func resetCaptureImage() {
+        capturedImage = nil
+    }
 }
 
 extension CameraService: AVCapturePhotoCaptureDelegate {
@@ -160,6 +164,7 @@ extension CameraService: AVCapturePhotoCaptureDelegate {
         Task { @MainActor in
             defer {
                 self.isCapturing = false
+//                self.capturedImage = nil
             }
 
             guard error == nil,

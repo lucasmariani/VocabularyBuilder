@@ -25,15 +25,6 @@ class SettingsViewController: UIViewController {
         return view
     }()
     
-    private lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Settings"
-        label.font = UIFont.systemFont(ofSize: 28, weight: .bold)
-        label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
     private lazy var ocrSectionLabel: UILabel = {
         let label = UILabel()
         label.text = "OCR Provider"
@@ -70,57 +61,6 @@ class SettingsViewController: UIViewController {
         return view
     }()
     
-    private lazy var openAISectionLabel: UILabel = {
-        let label = UILabel()
-        label.text = "OpenAI Configuration"
-        label.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var apiKeyLabel: UILabel = {
-        let label = UILabel()
-        label.text = "API Key"
-        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var apiKeyTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "sk-..."
-        textField.borderStyle = .roundedRect
-        textField.isSecureTextEntry = true
-        textField.font = UIFont.monospacedSystemFont(ofSize: 14, weight: .regular)
-        textField.addTarget(self, action: #selector(apiKeyChanged), for: .editingChanged)
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
-    }()
-    
-    private lazy var apiKeyDescriptionLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Your OpenAI API key is required to use OpenAI OCR. Get one at platform.openai.com"
-        label.font = UIFont.systemFont(ofSize: 12)
-        label.textColor = .systemGray2
-        label.numberOfLines = 0
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var doneButton: UIButton = {
-        let button = UIButton(type: .system)
-        var config = UIButton.Configuration.filled()
-        config.title = "Done"
-        config.cornerStyle = .medium
-        config.baseBackgroundColor = .systemBlue
-        config.baseForegroundColor = .white
-        config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 24, bottom: 12, trailing: 24)
-        button.configuration = config
-        button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -130,12 +70,12 @@ class SettingsViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .systemBackground
-        
+        self.title = "Settings"
+
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         
-        [titleLabel, ocrSectionLabel, ocrDescriptionLabel, visionProviderView, openAIProviderView, 
-         openAISectionLabel, apiKeyLabel, apiKeyTextField, apiKeyDescriptionLabel, doneButton].forEach {
+        [ocrSectionLabel, ocrDescriptionLabel, visionProviderView, openAIProviderView].forEach {
             contentView.addSubview($0)
         }
         
@@ -152,14 +92,9 @@ class SettingsViewController: UIViewController {
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            
-            // Title
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            
+
             // OCR Section
-            ocrSectionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 40),
+            ocrSectionLabel.topAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.topAnchor),
             ocrSectionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             ocrSectionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
@@ -174,29 +109,7 @@ class SettingsViewController: UIViewController {
             openAIProviderView.topAnchor.constraint(equalTo: visionProviderView.bottomAnchor, constant: 12),
             openAIProviderView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             openAIProviderView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            
-            // OpenAI Section
-            openAISectionLabel.topAnchor.constraint(equalTo: openAIProviderView.bottomAnchor, constant: 40),
-            openAISectionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            openAISectionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            
-            apiKeyLabel.topAnchor.constraint(equalTo: openAISectionLabel.bottomAnchor, constant: 20),
-            apiKeyLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            apiKeyLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            
-            apiKeyTextField.topAnchor.constraint(equalTo: apiKeyLabel.bottomAnchor, constant: 8),
-            apiKeyTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            apiKeyTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            apiKeyTextField.heightAnchor.constraint(equalToConstant: 44),
-            
-            apiKeyDescriptionLabel.topAnchor.constraint(equalTo: apiKeyTextField.bottomAnchor, constant: 8),
-            apiKeyDescriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            apiKeyDescriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            
-            // Done Button
-            doneButton.topAnchor.constraint(equalTo: apiKeyDescriptionLabel.bottomAnchor, constant: 40),
-            doneButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            doneButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40)
+            openAIProviderView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
     
@@ -208,7 +121,7 @@ class SettingsViewController: UIViewController {
         
         let radioButton = UIButton(type: .system)
         radioButton.setImage(UIImage(systemName: "circle"), for: .normal)
-        radioButton.setImage(UIImage(systemName: "circle.fill"), for: .selected)
+//        radioButton.setImage(UIImage(systemName: "circle.fill"), for: .selected)
         radioButton.tintColor = .systemBlue
         radioButton.tag = providerType.rawValue.hashValue
         radioButton.addTarget(self, action: #selector(providerSelectionChanged(_:)), for: .touchUpInside)
@@ -273,9 +186,6 @@ class SettingsViewController: UIViewController {
     }
     
     private func loadCurrentSettings() {
-        // Load API key
-        apiKeyTextField.text = UserDefaults.standard.string(forKey: "openai_api_key")
-        
         // Update provider selection
         updateProviderSelection()
     }
@@ -304,16 +214,6 @@ class SettingsViewController: UIViewController {
         guard let containerView = gesture.view else { return }
         let providerType: OCRProviderType = containerView.tag == OCRProviderType.vision.rawValue.hashValue ? .vision : .openAI
         ocrServiceManager.selectedProviderType = providerType
-    }
-    
-    @objc private func apiKeyChanged() {
-        guard let apiKey = apiKeyTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) else { return }
-        
-        if apiKey.isEmpty {
-            UserDefaults.standard.removeObject(forKey: "openai_api_key")
-        } else {
-            UserDefaults.standard.set(apiKey, forKey: "openai_api_key")
-        }
     }
     
     @objc private func doneButtonTapped() {
