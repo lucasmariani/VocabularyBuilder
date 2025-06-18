@@ -20,13 +20,13 @@ class OpenAIOCRProvider: OCRProviding {
             // Since we can't easily create RecognizedTextObservation objects,
             // we'll use a simple Vision request to create legitimate observations
             // but with the OpenAI text content
-            let observations = await createObservationsForText(recognizedText, from: image)
+//            let observations = await createObservationsForText(recognizedText, from: image)
             
             let result = OCRResult(
                 recognizedText: recognizedText,
                 confidence: 0.95, // OpenAI generally has high confidence
                 boundingBox: CGRect(x: 0, y: 0, width: 1, height: 1),
-                textObservations: observations
+                textObservations: []
             )
             
             return result

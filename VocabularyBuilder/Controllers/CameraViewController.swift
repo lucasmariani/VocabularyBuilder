@@ -50,6 +50,17 @@ class CameraViewController: UIViewController {
         return label
     }()
 
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .landscapeLeft // or .landscape, .all, etc.
+    }
+
+    override var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation {
+        return .landscapeLeft
+    }
+
+    override var shouldAutorotate: Bool {
+        return true // Prevents rotation
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -68,6 +79,7 @@ class CameraViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        setNeedsUpdateOfSupportedInterfaceOrientations()
         // Don't start session here - let setupCamera handle it properly
         if previewLayer != nil {
             cameraService.startSession()
