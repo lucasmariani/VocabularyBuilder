@@ -14,7 +14,7 @@ class OCRServiceManager {
         }
     }
 
-    private var providers: [OCRProviderType: OCRProvider] = [:]
+    private var providers: [OCRProviderType: OCRProviding] = [:]
 
     init() {
         setupProviders()
@@ -33,7 +33,7 @@ class OCRServiceManager {
         }
     }
 
-    var currentProvider: OCRProvider? {
+    var currentProvider: OCRProviding? {
         return providers[selectedProviderType]
     }
 
@@ -58,31 +58,5 @@ class OCRServiceManager {
 
         isProcessing = false
         return result
-    }
-
-    nonisolated func extractWordsWithBounds(from result: OCRResult) -> [(word: String, bounds: CGRect)] {
-        var wordsWithBounds: [(word: String, bounds: CGRect)] = []
-
-        if result.textObservations.isEmpty {
-            // For providers like OpenAI that don't provide detailed observations,
-            // split the text into words and use the overall bounding box
-            let words = result.recognizedText.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
-            for word in words {
-                wordsWithBounds.append((word: word, bounds: result.boundingBox))
-            }
-        } else {
-            // Use detailed observations when available (like from Vision)
-            for observation in result.textObservations {
-                guard let candidate = observation.topCandidates(1).first else { continue }
-
-                let words = candidate.string.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
-
-                for word in words {
-                    wordsWithBounds.append((word: word, bounds: observation.boundingBox))
-                }
-            }
-        }
-
-        return wordsWithBounds
     }
 }

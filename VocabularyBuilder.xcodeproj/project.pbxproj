@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A0C108EA2E01C4380003426C /* OpenAIForSwift in Frameworks */ = {isa = PBXBuildFile; productRef = A0C108E92E01C4380003426C /* OpenAIForSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		A036D67B2DFDACDC00260A49 /* VocabularyBuilder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabularyBuilder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0C108EA2E01C4380003426C /* OpenAIForSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = VocabularyBuilder;
 			packageProductDependencies = (
+				A0C108E92E01C4380003426C /* OpenAIForSwift */,
 			);
 			productName = VocabularyBuilder;
 			productReference = A036D67B2DFDACDC00260A49 /* VocabularyBuilder.app */;
@@ -107,6 +113,9 @@
 			);
 			mainGroup = A036D6722DFDACDC00260A49;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A0C108E62E01BFE80003426C /* XCLocalSwiftPackageReference "../OpenAIForSwift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A036D67C2DFDACDC00260A49 /* Products */;
 			projectDirPath = "";
@@ -369,6 +378,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		A0C108E62E01BFE80003426C /* XCLocalSwiftPackageReference "../OpenAIForSwift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../OpenAIForSwift;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A0C108E92E01C4380003426C /* OpenAIForSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = OpenAIForSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A036D6732DFDACDC00260A49 /* Project object */;
 }

@@ -98,15 +98,6 @@ class VocabularyListViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = false
         navigationItem.searchController = searchController
 
-        // Add settings button
-        let settingsButton = UIBarButtonItem(
-            image: UIImage(systemName: "gearshape"),
-            style: .plain,
-            target: self,
-            action: #selector(settingsButtonTapped)
-        )
-        navigationItem.rightBarButtonItem = settingsButton
-
         view.backgroundColor = .white
         view.addSubview(tableView)
         view.addSubview(emptyStateView)
@@ -171,18 +162,6 @@ class VocabularyListViewController: UIViewController {
         } catch {
             print("Error deleting word: \(error)")
         }
-    }
-
-    @objc private func settingsButtonTapped() {
-        let settingsVC = SettingsViewController(ocrServiceManager: ocrServiceManager)
-        let navController = UINavigationController(rootViewController: settingsVC)
-
-        if let sheet = navController.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
-            sheet.prefersGrabberVisible = true
-        }
-
-        present(navController, animated: true)
     }
 }
 

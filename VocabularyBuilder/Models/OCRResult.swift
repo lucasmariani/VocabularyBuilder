@@ -1,9 +1,6 @@
 import Foundation
 import Vision
 
-typealias RecognizedTextObservation = VNRecognizedTextObservation
-typealias RecognizeTextRequest = VNRecognizeTextRequest
-
 struct OCRResult {
     let recognizedText: String
     let confidence: Float

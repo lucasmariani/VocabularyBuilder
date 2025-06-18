@@ -1,7 +1,7 @@
 import UIKit
 import Vision
 
-class OpenAIOCRProvider: OCRProvider {
+class OpenAIOCRProvider: OCRProviding {
     let displayName = "OpenAI"
     
     private let openAIService = OpenAIService()
@@ -17,7 +17,7 @@ class OpenAIOCRProvider: OCRProvider {
         do {
             let recognizedText = try await openAIService.extractTextFromImage(image)
             
-            // Since we can't easily create VNRecognizedTextObservation objects,
+            // Since we can't easily create RecognizedTextObservation objects,
             // we'll use a simple Vision request to create legitimate observations
             // but with the OpenAI text content
             let observations = await createObservationsForText(recognizedText, from: image)
@@ -41,14 +41,13 @@ class OpenAIOCRProvider: OCRProvider {
         // but we'll use the OpenAI extracted text instead of Vision's results
         guard let cgImage = image.cgImage else { return [] }
         
-        let request = VNRecognizeTextRequest()
+        var request = RecognizeTextRequest()
         request.recognitionLevel = .fast // Use fast since we're not using the results
-        
+
         do {
-            let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-            try handler.perform([request])
-            let results = request.results ?? []
-            
+            let handler = ImageRequestHandler(cgImage)
+            let results = try await handler.perform(request)
+
             if !results.isEmpty {
                 // Use the first observation as a template but with our OpenAI text
                 return [results[0]]

@@ -1,7 +1,7 @@
 import UIKit
 import Foundation
 
-protocol OCRProvider {
+protocol OCRProviding {
     var displayName: String { get }
     var isAvailable: Bool { get }
     func recognizeText(from image: UIImage) async -> OCRResult?

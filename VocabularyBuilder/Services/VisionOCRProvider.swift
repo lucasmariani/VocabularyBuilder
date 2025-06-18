@@ -2,15 +2,16 @@ import UIKit
 @preconcurrency import Vision
 import Foundation
 
-class VisionOCRProvider: OCRProvider {
+class VisionOCRProvider: OCRProviding {
     let displayName = "iOS Vision"
     let isAvailable = true
 
     func recognizeText(from image: UIImage) async -> OCRResult? {
-        let request = VNRecognizeTextRequest()
-        request.usesLanguageCorrection = true
-        request.recognitionLanguages = ["es-CL"]
+        var request = RecognizeTextRequest()
         request.recognitionLevel = .accurate
+        request.automaticallyDetectsLanguage = true
+        request.usesLanguageCorrection = true
+        request.recognitionLanguages = [Locale.Language(identifier: "en-US"), Locale.Language(identifier: "es-AR")]
 
         guard let cgImage = image.cgImage else {
             print("VisionOCR: No CGImage available")
@@ -18,9 +19,8 @@ class VisionOCRProvider: OCRProvider {
         }
 
         do {
-            let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-            try handler.perform([request])
-            let results = request.results ?? []
+            let handler = ImageRequestHandler(cgImage)
+             let results = try await handler.perform(request)
 
             var observations = [RecognizedTextObservation]()
             for observation in results {
@@ -59,10 +59,10 @@ class VisionOCRProvider: OCRProvider {
 
         for observation in observations {
             let bounds = observation.boundingBox
-            minX = min(minX, bounds.minX)
-            minY = min(minY, bounds.minY)
-            maxX = max(maxX, bounds.maxX)
-            maxY = max(maxY, bounds.maxY)
+            minX = min(minX, bounds.cgRect.minX)
+            minY = min(minY, bounds.cgRect.minY)
+            maxX = max(maxX, bounds.cgRect.maxX)
+            maxY = max(maxY, bounds.cgRect.maxY)
         }
 
         return CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
