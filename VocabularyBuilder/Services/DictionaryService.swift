@@ -21,9 +21,19 @@ struct DictionaryEntry {
 @Observable
 @MainActor
 class DictionaryService {
-    private let session = URLSession.shared
+    private let provider: DictionaryServiceProtocol
 
     var isLoading = false
+
+    init(provider: DictionaryServiceProtocol) {
+        self.provider = provider
+    }
+    
+    convenience init() {
+        // Default to OpenAI provider - API key configured in Info.plist
+        let openAIProvider = OpenAIDictionaryService()
+        self.init(provider: openAIProvider)
+    }
 
     func fetchDefinition(for word: String) async throws -> DictionaryEntry {
         isLoading = true
@@ -32,26 +42,7 @@ class DictionaryService {
             isLoading = false
         }
 
-        guard let url = URL(string: "https://api.dictionaryapi.dev/api/v2/entries/en/\(word.lowercased())") else {
-            throw DictionaryError.invalidURL
-        }
-
-        do {
-            let (data, _) = try await session.data(from: url)
-
-            let apiResponse = try JSONDecoder().decode([DictionaryAPIResponse].self, from: data)
-
-            guard let firstEntry = apiResponse.first else {
-                throw DictionaryError.wordNotFound
-            }
-
-            return convertAPIResponse(firstEntry)
-
-        } catch is DecodingError {
-            throw DictionaryError.parsingError
-        } catch {
-            throw error
-        }
+        return try await provider.fetchDefinition(for: word)
     }
 
     func fetchDefinitionMock(for word: String) async -> DictionaryEntry {
