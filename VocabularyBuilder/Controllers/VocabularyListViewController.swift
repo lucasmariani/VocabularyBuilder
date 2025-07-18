@@ -211,7 +211,6 @@ class VocabularyListViewController: UIViewController {
             self?.selectedLanguage = nil
             self?.updateFilteredWords()
             self?.tableView.reloadData()
-            self?.updateNavigationTitle()
         }
         if selectedLanguage == nil {
             allLanguagesAction.setValue(UIImage(systemName: "checkmark"), forKey: "image")
@@ -224,7 +223,6 @@ class VocabularyListViewController: UIViewController {
                 self?.selectedLanguage = language
                 self?.updateFilteredWords()
                 self?.tableView.reloadData()
-                self?.updateNavigationTitle()
             }
             if selectedLanguage == language {
                 languageAction.setValue(UIImage(systemName: "checkmark"), forKey: "image")
@@ -245,14 +243,6 @@ class VocabularyListViewController: UIViewController {
     private func getAvailableLanguages() -> [String] {
         let languages = Set(words.compactMap { $0.language })
         return Array(languages).sorted()
-    }
-    
-    private func updateNavigationTitle() {
-        if let selectedLanguage = selectedLanguage {
-            title = "Vocabulary (\(selectedLanguage))"
-        } else {
-            title = "Vocabulary"
-        }
     }
 }
 
