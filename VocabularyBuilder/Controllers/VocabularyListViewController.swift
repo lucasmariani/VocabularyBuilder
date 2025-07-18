@@ -7,6 +7,7 @@ class VocabularyListViewController: UIViewController {
     private var words: [VocabularyWord] = []
     private var filteredWords: [VocabularyWord] = []
     private var isSearching = false
+    private var selectedLanguage: String? = nil
 
     init(modelContainer: ModelContainer, ocrServiceManager: OCRServiceManager) {
         self.modelContainer = modelContainer
@@ -87,18 +88,33 @@ class VocabularyListViewController: UIViewController {
         setupUI()
         loadWords()
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadWords()
+        
+        // Ensure navigation bar appearance is correct
+        if let navigationBar = navigationController?.navigationBar {
+            navigationBar.barStyle = .default
+            navigationBar.isTranslucent = true
+            navigationBar.backgroundColor = .clear
+            navigationBar.barTintColor = .systemBackground
+        }
     }
 
     private func setupUI() {
         title = "Vocabulary"
         navigationController?.navigationBar.prefersLargeTitles = false
         navigationItem.searchController = searchController
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "line.3.horizontal.decrease.circle"),
+            style: .plain,
+            target: self,
+            action: #selector(filterButtonTapped)
+        )
 
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.addSubview(tableView)
         view.addSubview(emptyStateView)
 
@@ -134,13 +150,21 @@ class VocabularyListViewController: UIViewController {
     }
 
     private func updateFilteredWords() {
+        var wordsToFilter = words
+        
+        // Apply language filter first
+        if let selectedLanguage = selectedLanguage {
+            wordsToFilter = wordsToFilter.filter { $0.language == selectedLanguage }
+        }
+        
+        // Then apply search filter
         if isSearching, let searchText = searchController.searchBar.text, !searchText.isEmpty {
-            filteredWords = words.filter { word in
+            filteredWords = wordsToFilter.filter { word in
                 word.word.localizedCaseInsensitiveContains(searchText) ||
                 word.definition.localizedCaseInsensitiveContains(searchText)
             }
         } else {
-            filteredWords = words
+            filteredWords = wordsToFilter
         }
     }
 
@@ -170,6 +194,64 @@ class VocabularyListViewController: UIViewController {
         Task { @MainActor in
             let wordDetailVC = WordDetailViewController(modelContainer: self.modelContainer, word: word)
             self.navigationController?.pushViewController(wordDetailVC, animated: true)
+        }
+    }
+    
+    @objc private func filterButtonTapped() {
+        showLanguageFilter()
+    }
+    
+    private func showLanguageFilter() {
+        let languages = getAvailableLanguages()
+        
+        let actionSheet = UIAlertController(title: "Filter by Language", message: nil, preferredStyle: .actionSheet)
+        
+        // Add "All Languages" option
+        let allLanguagesAction = UIAlertAction(title: "All Languages", style: .default) { [weak self] _ in
+            self?.selectedLanguage = nil
+            self?.updateFilteredWords()
+            self?.tableView.reloadData()
+            self?.updateNavigationTitle()
+        }
+        if selectedLanguage == nil {
+            allLanguagesAction.setValue(UIImage(systemName: "checkmark"), forKey: "image")
+        }
+        actionSheet.addAction(allLanguagesAction)
+        
+        // Add language options
+        for language in languages {
+            let languageAction = UIAlertAction(title: language, style: .default) { [weak self] _ in
+                self?.selectedLanguage = language
+                self?.updateFilteredWords()
+                self?.tableView.reloadData()
+                self?.updateNavigationTitle()
+            }
+            if selectedLanguage == language {
+                languageAction.setValue(UIImage(systemName: "checkmark"), forKey: "image")
+            }
+            actionSheet.addAction(languageAction)
+        }
+        
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        // Handle iPad presentation
+        if let popoverController = actionSheet.popoverPresentationController {
+            popoverController.barButtonItem = navigationItem.rightBarButtonItem
+        }
+        
+        present(actionSheet, animated: true)
+    }
+    
+    private func getAvailableLanguages() -> [String] {
+        let languages = Set(words.compactMap { $0.language })
+        return Array(languages).sorted()
+    }
+    
+    private func updateNavigationTitle() {
+        if let selectedLanguage = selectedLanguage {
+            title = "Vocabulary (\(selectedLanguage))"
+        } else {
+            title = "Vocabulary"
         }
     }
 }
