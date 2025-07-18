@@ -106,13 +106,16 @@ class VocabularyListViewController: UIViewController {
         title = "Vocabulary"
         navigationController?.navigationBar.prefersLargeTitles = false
         navigationItem.searchController = searchController
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "line.3.horizontal.decrease.circle"),
+
+        // Add settings button
+        let settingsButton = UIBarButtonItem(
+            image: UIImage(systemName: "gearshape"),
             style: .plain,
             target: self,
-            action: #selector(filterButtonTapped)
+            action: #selector(settingsButtonTapped)
         )
+        navigationItem.leftBarButtonItem = settingsButton
+        self.setupfilterButton()
 
         view.backgroundColor = .systemBackground
         view.addSubview(tableView)
@@ -133,6 +136,27 @@ class VocabularyListViewController: UIViewController {
         updateEmptyState()
     }
 
+    @objc private func settingsButtonTapped() {
+        let settingsVC = SettingsViewController(ocrServiceManager: ocrServiceManager)
+        let navController = UINavigationController(rootViewController: settingsVC)
+
+        if let sheet = navController.sheetPresentationController {
+            sheet.detents = [.large()]
+            sheet.prefersGrabberVisible = true
+        }
+
+        present(navController, animated: true)
+    }
+
+    private func setupfilterButton() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: nil,
+            image: UIImage(systemName: "line.3.horizontal.decrease.circle"),
+            primaryAction: nil,
+            menu: self.buildLanguageFilter()
+        )
+    }
+
     private func loadWords() {
         let modelContext = modelContainer.mainContext
         let descriptor = FetchDescriptor<VocabularyWord>(sortBy: [SortDescriptor(\.dateAdded, order: .reverse)])
@@ -143,6 +167,7 @@ class VocabularyListViewController: UIViewController {
                 self.updateFilteredWords()
                 self.tableView.reloadData()
                 self.updateEmptyState()
+                self.setupfilterButton()
             }
         } catch {
             print("Error fetching words: \(error)")
@@ -197,47 +222,40 @@ class VocabularyListViewController: UIViewController {
         }
     }
     
-    @objc private func filterButtonTapped() {
-        showLanguageFilter()
-    }
-    
-    private func showLanguageFilter() {
+    private func buildLanguageFilter() -> UIMenu {
         let languages = getAvailableLanguages()
         
-        let actionSheet = UIAlertController(title: "Filter by Language", message: nil, preferredStyle: .actionSheet)
-        
-        // Add "All Languages" option
-        let allLanguagesAction = UIAlertAction(title: "All Languages", style: .default) { [weak self] _ in
-            self?.selectedLanguage = nil
-            self?.updateFilteredWords()
-            self?.tableView.reloadData()
-        }
-        if selectedLanguage == nil {
-            allLanguagesAction.setValue(UIImage(systemName: "checkmark"), forKey: "image")
-        }
-        actionSheet.addAction(allLanguagesAction)
-        
+        var menuActions: [UIAction] = []
+
         // Add language options
         for language in languages {
-            let languageAction = UIAlertAction(title: language, style: .default) { [weak self] _ in
+            let languageAction = UIAction(
+                title: language,
+                image: nil,
+                state: self.selectedLanguage == language ? .on : .off
+            ) { [weak self] _ in
                 self?.selectedLanguage = language
                 self?.updateFilteredWords()
                 self?.tableView.reloadData()
+                self?.setupfilterButton()
             }
-            if selectedLanguage == language {
-                languageAction.setValue(UIImage(systemName: "checkmark"), forKey: "image")
-            }
-            actionSheet.addAction(languageAction)
+            menuActions.append(languageAction)
         }
-        
-        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        
-        // Handle iPad presentation
-        if let popoverController = actionSheet.popoverPresentationController {
-            popoverController.barButtonItem = navigationItem.rightBarButtonItem
+
+        // Add "All Languages" option
+        let allLanguagesAction = UIAction(
+            title: "All Languages",
+            image: nil,
+            state: self.selectedLanguage == nil ? .on : .off
+        ) { [weak self] _ in
+            self?.selectedLanguage = nil
+            self?.updateFilteredWords()
+            self?.tableView.reloadData()
+            self?.setupfilterButton()
         }
-        
-        present(actionSheet, animated: true)
+        menuActions.append(allLanguagesAction)
+
+        return UIMenu(title: "Filter by Language", children: menuActions)
     }
     
     private func getAvailableLanguages() -> [String] {

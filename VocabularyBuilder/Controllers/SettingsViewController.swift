@@ -127,8 +127,8 @@ extension SettingsViewController: UITableViewDataSource {
             var content = UIListContentConfiguration.cell()
             content.text = item.displayName
             content.secondaryText = item.description
-            let checkmark = UIImage(systemName: "checkmark")
-            let circle = UIImage(systemName: "circle")
+            let checkmark = UIImage(systemName: "circle.fill")
+            let circle = UIImage(systemName: "circle.dashed")
             content.image = item.isSelected ? checkmark : circle
             cell.contentConfiguration = content
         }

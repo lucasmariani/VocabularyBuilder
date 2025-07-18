@@ -100,17 +100,6 @@ class CameraViewController: UIViewController {
 
     private func setupUI() {
         view.backgroundColor = .black
-
-        // Add settings button
-        let settingsButton = UIBarButtonItem(
-            image: UIImage(systemName: "gearshape"),
-            style: .plain,
-            target: self,
-            action: #selector(settingsButtonTapped)
-        )
-        navigationItem.rightBarButtonItem = settingsButton
-
-
         view.addSubview(permissionLabel)
         view.addSubview(captureButton)
         
@@ -341,17 +330,5 @@ class CameraViewController: UIViewController {
             self.hideCapturedImage()
             self.cameraService.startSession()
         }
-    }
-
-    @objc private func settingsButtonTapped() {
-        let settingsVC = SettingsViewController(ocrServiceManager: ocrServiceManager)
-        let navController = UINavigationController(rootViewController: settingsVC)
-
-        if let sheet = navController.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
-            sheet.prefersGrabberVisible = true
-        }
-
-        present(navController, animated: true)
     }
 }
