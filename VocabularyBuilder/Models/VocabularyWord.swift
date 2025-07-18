@@ -4,6 +4,7 @@ import SwiftData
 @Model
 final class VocabularyWord {
     var word: String
+    var language: String
     var definition: String
     var partOfSpeech: String?
     var pronunciation: String?
@@ -13,8 +14,9 @@ final class VocabularyWord {
 
     @Relationship(deleteRule: .cascade) var contexts: [WordContext] = []
 
-    init(word: String, definition: String, partOfSpeech: String? = nil, pronunciation: String? = nil) {
+    init(word: String, language: String, definition: String, partOfSpeech: String? = nil, pronunciation: String? = nil) {
         self.word = word
+        self.language = language
         self.definition = definition
         self.partOfSpeech = partOfSpeech
         self.pronunciation = pronunciation

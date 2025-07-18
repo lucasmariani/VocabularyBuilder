@@ -65,22 +65,24 @@ class OpenAIService {
         } catch let error as OpenAIForSwift.APIError {
             // Handle OpenAIForSwift package errors
             switch error {
-            case .requestFailed(let description):
+            case .requestFailed(description: let desc, underlyingError: let error):
                 throw OCRProviderError.networkError(NSError(
                     domain: "OpenAIRequestFailed",
                     code: -1,
-                    userInfo: [NSLocalizedDescriptionKey: description]
+                    userInfo: [NSLocalizedDescriptionKey: desc]
                 ))
-            case .responseUnsuccessful(let description, let statusCode):
+            case .responseUnsuccessful(description: let descr, statusCode: let statusCode, httpHeaders: let headers, underlyingError: let error):
                 throw OCRProviderError.networkError(NSError(
                     domain: "OpenAIError",
                     code: statusCode,
-                    userInfo: [NSLocalizedDescriptionKey: "HTTP \(statusCode): \(description)"]
+                    userInfo: [NSLocalizedDescriptionKey: "HTTP \(statusCode): \(statusCode)"]
                 ))
             case .invalidData, .jsonDecodingFailure, .dataCouldNotBeReadMissingData, .bothDecodingStrategiesFailed:
                 throw OCRProviderError.invalidResponse
             case .timeOutError:
                 throw OCRProviderError.networkError(URLError(.timedOut))
+            case .streamProcessingError(description: let description, underlyingError: let underlyingError):
+                throw OCRProviderError.networkError(underlyingError!) // TODO: fix this.
             }
         } catch {
             throw OCRProviderError.networkError(error)

@@ -1,11 +1,16 @@
 import UIKit
 import SwiftData
 
+protocol WordSelectionDelegate: AnyObject {
+    func wordSelectionDidAddWord(_ word: VocabularyWord)
+}
+
 class WordSelectionViewController: UIViewController {
     private let capturedImage: UIImage
     private let ocrResult: OCRResult
     private var dictionaryService = DictionaryService()
     private let modelContainer: ModelContainer
+    weak var delegate: WordSelectionDelegate?
 
     private lazy var textView: UITextView = {
         let textView = UITextView()
@@ -74,13 +79,14 @@ class WordSelectionViewController: UIViewController {
                 let cleanWord = word.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
 
                 if !cleanWord.isEmpty {
-                    handleWordSelection(cleanWord)
+                    let linguisticContext = extractLinguisticContext(around: wordRange)
+                    handleWordSelection(cleanWord, linguisticContext: linguisticContext)
                 }
             }
         }
     }
 
-    private func handleWordSelection(_ word: String) {
+    private func handleWordSelection(_ word: String, linguisticContext: String?) {
         let alert = UIAlertController(
             title: "Add \"\(word)\" to vocabulary?",
             message: "This will fetch the definition and add it to your vocabulary list.",
@@ -89,13 +95,13 @@ class WordSelectionViewController: UIViewController {
 
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Add", style: .default) { [weak self] _ in
-            self?.addWordToVocabulary(word)
+            self?.addWordToVocabulary(word, linguisticContext: linguisticContext)
         })
 
         present(alert, animated: true)
     }
 
-    private func addWordToVocabulary(_ word: String) {
+    private func addWordToVocabulary(_ word: String, linguisticContext: String?) {
         Task {
             let loadingAlert = UIAlertController(title: "Loading...", message: "Fetching definition", preferredStyle: .alert)
             await MainActor.run {
@@ -103,7 +109,7 @@ class WordSelectionViewController: UIViewController {
             }
 
             do {
-                let dictionaryEntry = try await dictionaryService.fetchDefinition(for: word)
+                let dictionaryEntry = try await dictionaryService.fetchDefinition(for: word, linguisticContext: linguisticContext)
                 await MainActor.run {
                     loadingAlert.dismiss(animated: true)
                     saveWordToDatabase(word: word, dictionaryEntry: dictionaryEntry)
@@ -125,6 +131,7 @@ class WordSelectionViewController: UIViewController {
 
         let vocabularyWord = VocabularyWord(
             word: word,
+            language: dictionaryEntry.language,
             definition: definition,
             partOfSpeech: partOfSpeech,
             pronunciation: dictionaryEntry.phonetic
@@ -147,19 +154,38 @@ class WordSelectionViewController: UIViewController {
             return
         }
 
-        let successAlert = UIAlertController(
-            title: "Success!",
-            message: "\"\(word)\" has been added to your vocabulary.",
-            preferredStyle: .alert
-        )
-
-        successAlert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
-            self?.dismiss(animated: true)
-        })
-
-        present(successAlert, animated: true)
+        dismiss(animated: true) { [weak self] in
+            self?.delegate?.wordSelectionDidAddWord(vocabularyWord)
+        }
     }
 
+    private func extractLinguisticContext(around wordRange: UITextRange) -> String {
+        let text = textView.text ?? ""
+        let nsRange = NSRange(location: textView.offset(from: textView.beginningOfDocument, to: wordRange.start), 
+                             length: textView.offset(from: wordRange.start, to: wordRange.end))
+        
+        let words = text.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
+        
+        guard let range = Range(nsRange, in: text) else {
+            return Array(words.prefix(5)).joined(separator: " ")
+        }
+        
+        let selectedWord = String(text[range])
+        guard let selectedIndex = words.firstIndex(of: selectedWord) else {
+            return Array(words.prefix(5)).joined(separator: " ")
+        }
+        
+        let contextWordsNeeded = 4 // 5 total words minus the selected word
+        let wordsBeforeNeeded = min(contextWordsNeeded / 2, selectedIndex)
+        let wordsAfterNeeded = min(contextWordsNeeded - wordsBeforeNeeded, words.count - selectedIndex - 1)
+        
+        let startIndex = selectedIndex - wordsBeforeNeeded
+        let endIndex = selectedIndex + wordsAfterNeeded
+        
+        let contextWords = Array(words[startIndex...endIndex])
+        return contextWords.joined(separator: " ")
+    }
+    
     private func extractSentenceContaining(word: String) -> String {
         let sentences = ocrResult.recognizedText.components(separatedBy: CharacterSet(charactersIn: ".!?"))
 

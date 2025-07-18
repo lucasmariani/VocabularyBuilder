@@ -12,8 +12,8 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
         self.openAIService = OpenAIServiceFactory.service(apiKey: apiKey)
     }
     
-    func fetchDefinition(for word: String) async throws -> DictionaryEntry {
-        let systemPrompt = """
+    func fetchDefinition(for word: String, linguisticContext: String?) async throws -> DictionaryEntry {
+        var systemPrompt = """
         You are a comprehensive multilingual dictionary. When given a word, provide a complete dictionary entry.
         
         Guidelines:
@@ -25,7 +25,10 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
         - If you don't know the word, return the word with an empty meanings array
         - Always return valid data matching the provided schema
         """
-        
+        if let linguisticContext {
+            systemPrompt += "\n - In order to better ascertain the language the word is a member of, here is an example of the word within a larger sentence: \(linguisticContext)"
+        }
+
         let userPrompt = "Define the word: \(word)"
         
         let systemMessage = OpenAIForSwift.InputMessage(
@@ -46,6 +49,7 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
             description: "Vocabulary word entry",
             properties: [
                 "word": JsonSchema(type: .string, description: "The word"),
+                "language": JsonSchema(type: .string, description: "The language the word is a member of"),
                 "pronunciation": JsonSchema(type: .string, description: "How to pronounce it"),
                 "partOfSpeech": JsonSchema(type: .string, description: "noun, verb, adjective, etc."),
                 "definition": JsonSchema(type: .string, description: "Primary meaning"),
@@ -56,7 +60,7 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
                     items: JsonSchema(type: .string)
                 )
             ],
-            required: ["word", "pronunciation", "partOfSpeech", "definition", "example", "synonyms"]
+            required: ["word", "language", "pronunciation", "partOfSpeech", "definition", "example", "synonyms"]
         )
         
         let request = OpenAIForSwift.ModelResponseParameter(
@@ -106,6 +110,7 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
         
         return DictionaryEntry(
             word: vocabularyResponse.word,
+            language: vocabularyResponse.language,
             phonetic: vocabularyResponse.pronunciation,
             meanings: [meaning]
         )
@@ -113,18 +118,20 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
     
     private func mapOpenAIError(_ error: OpenAIForSwift.APIError) -> OpenAIDictionaryError {
         switch error {
-        case .requestFailed(let description):
+        case .requestFailed(description: let desc, underlyingError: let error):
             return .networkError(NSError(
                 domain: "OpenAIRequestFailed",
                 code: -1,
-                userInfo: [NSLocalizedDescriptionKey: description]
+                userInfo: [NSLocalizedDescriptionKey: desc]
             ))
-        case .responseUnsuccessful(_, let statusCode):
+        case .responseUnsuccessful(description: let desc, statusCode: let statusCode, httpHeaders: let headers, underlyingError: let error):
             return .apiError(statusCode: statusCode)
         case .invalidData, .jsonDecodingFailure, .dataCouldNotBeReadMissingData, .bothDecodingStrategiesFailed:
             return .parsingError
         case .timeOutError:
             return .networkError(URLError(.timedOut))
+        case .streamProcessingError(description: let description, underlyingError: let underlyingError):
+            return .invalidResponse // TODO: fix
         }
     }
 }
@@ -133,6 +140,7 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
 
 private struct SimplifiedVocabularyResponse: Codable {
     let word: String
+    let language: String
     let pronunciation: String
     let partOfSpeech: String
     let definition: String

@@ -4,6 +4,7 @@ import SwiftData
 class MainTabBarController: UITabBarController {
     private let modelContainer: ModelContainer
     private let ocrServiceManager = OCRServiceManager()
+    private var vocabularyNavigationController: UINavigationController?
 
     init(modelContainer: ModelContainer) {
         self.modelContainer = modelContainer
@@ -48,9 +49,24 @@ class MainTabBarController: UITabBarController {
             image: UIImage(systemName: "book"),
             selectedImage: UIImage(systemName: "book.fill")
         )
+        self.vocabularyNavigationController = vocabularyNavController
 
         viewControllers = [cameraNavController, vocabularyNavController]
         print("View controllers set: \(viewControllers?.count ?? 0)")
+    }
+}
+
+// MARK: - WordSelectionDelegate
+extension MainTabBarController: WordSelectionDelegate {
+    func wordSelectionDidAddWord(_ word: VocabularyWord) {
+        selectedIndex = 1
+        
+        guard let vocabularyNavController = vocabularyNavigationController,
+              let vocabularyListVC = vocabularyNavController.viewControllers.first as? VocabularyListViewController else {
+            return
+        }
+        vocabularyNavController.popToRootViewController(animated: false)
+        vocabularyListVC.navigateToWordDetail(word)
     }
 }
 

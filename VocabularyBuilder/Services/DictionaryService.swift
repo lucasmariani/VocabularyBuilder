@@ -3,6 +3,7 @@ import Observation
 
 struct DictionaryEntry {
     let word: String
+    let language: String
     let phonetic: String?
     let meanings: [Meaning]
 
@@ -35,19 +36,20 @@ class DictionaryService {
         self.init(provider: openAIProvider)
     }
 
-    func fetchDefinition(for word: String) async throws -> DictionaryEntry {
+    func fetchDefinition(for word: String, linguisticContext: String? = nil) async throws -> DictionaryEntry {
         isLoading = true
 
         defer {
             isLoading = false
         }
 
-        return try await provider.fetchDefinition(for: word)
+        return try await provider.fetchDefinition(for: word, linguisticContext: linguisticContext)
     }
 
     func fetchDefinitionMock(for word: String) async -> DictionaryEntry {
         let mockEntry = DictionaryEntry(
             word: word,
+            language: "spanish",
             phonetic: "/\(word)/",
             meanings: [
                 DictionaryEntry.Meaning(
@@ -84,6 +86,7 @@ class DictionaryService {
 
         return DictionaryEntry(
             word: response.word,
+            language: response.language,
             phonetic: response.phonetic,
             meanings: meanings
         )
@@ -92,6 +95,7 @@ class DictionaryService {
 
 private struct DictionaryAPIResponse: Codable {
     let word: String
+    let language: String
     let phonetic: String?
     let meanings: [APIResponseMeaning]
 

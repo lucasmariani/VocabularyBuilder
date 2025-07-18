@@ -330,6 +330,11 @@ class CameraViewController: UIViewController {
     
     private func showWordSelectionView(with image: UIImage, ocrResult: OCRResult) {
         let wordSelectionVC = WordSelectionViewController(modelContainer: self.modelContainer, image: image, ocrResult: ocrResult)
+        
+        if let mainTabBarController = self.tabBarController as? MainTabBarController {
+            wordSelectionVC.delegate = mainTabBarController
+        }
+        
         let navController = UINavigationController(rootViewController: wordSelectionVC)
         present(navController, animated: true) {
             // Reset the camera view after presenting word selection

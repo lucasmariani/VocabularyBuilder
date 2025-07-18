@@ -163,6 +163,15 @@ class VocabularyListViewController: UIViewController {
             print("Error deleting word: \(error)")
         }
     }
+    
+    func navigateToWordDetail(_ word: VocabularyWord) {
+        loadWords()
+        
+        Task { @MainActor in
+            let wordDetailVC = WordDetailViewController(modelContainer: self.modelContainer, word: word)
+            self.navigationController?.pushViewController(wordDetailVC, animated: true)
+        }
+    }
 }
 
 // MARK: - UITableViewDataSource
