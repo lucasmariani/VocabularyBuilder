@@ -11,8 +11,8 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
         
         self.openAIService = OpenAIServiceFactory.service(apiKey: apiKey)
     }
-    
-    func fetchDefinition(for word: String, linguisticContext: String?) async throws -> DictionaryEntry {
+
+    func fetchDefinition(for word: String, lexicalClass: LexicalClass?, language: Language?, linguisticContext: String?) async throws -> DictionaryEntry {
         var systemPrompt = """
         You are a comprehensive multilingual dictionary. When given a word, provide a complete dictionary entry.
         
@@ -25,11 +25,30 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
         - If you don't know the word, return the word with an empty meanings array
         - Always return valid data matching the provided schema
         """
+        
+        // Enhanced context integration
+        if let language {
+            systemPrompt += "\n - The word is detected to be in the language: \(language.englishName)"
+        }
+        
+        if let lexicalClass {
+            systemPrompt += "\n - The word is detected to be a \(lexicalClass.rawValue.lowercased())"
+        }
+        
         if let linguisticContext {
-            systemPrompt += "\n - In order to better ascertain the language the word is a member of, here is an example of the word within a larger sentence: \(linguisticContext)"
+            systemPrompt += "\n - In order to better ascertain the language and meaning, here is the word within a larger sentence: \(linguisticContext)"
         }
 
-        let userPrompt = "Define the word: \(word)"
+        let userPrompt: String
+        if let lexicalClass = lexicalClass, let language = language {
+            userPrompt = "Define the \(lexicalClass.rawValue.lowercased()) '\(word)' in \(language)"
+        } else if let lexicalClass = lexicalClass {
+            userPrompt = "Define the \(lexicalClass.rawValue.lowercased()): \(word)"
+        } else if let language = language {
+            userPrompt = "Define the word in \(language): \(word)"
+        } else {
+            userPrompt = "Define the word: \(word)"
+        }
         
         let systemMessage = OpenAIForSwift.InputMessage(
             role: "system",
@@ -43,7 +62,7 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
             type: "message"
         )
         
-        // Create simplified flat JSON schema
+        // Use the same schema and request structure as the original method
         let vocabularySchema = JsonSchema(
             type: .object,
             description: "Vocabulary word entry",
@@ -51,7 +70,7 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
                 "word": JsonSchema(type: .string, description: "The word"),
                 "language": JsonSchema(type: .string, description: "The language the word is a member of"),
                 "pronunciation": JsonSchema(type: .string, description: "How to pronounce it"),
-                "partOfSpeech": JsonSchema(type: .string, description: "noun, verb, adjective, etc."),
+                "partOfSpeech": JsonSchema(type: .string, description: "noun, verb, adverb, adjective, etc."),
                 "definition": JsonSchema(type: .string, description: "Primary meaning"),
                 "example": JsonSchema(type: .string, description: "Example sentence"),
                 "synonyms": JsonSchema(

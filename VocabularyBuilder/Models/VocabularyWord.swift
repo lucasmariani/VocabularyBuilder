@@ -1,3 +1,10 @@
+//
+//  VocabularyWord.swift
+//  VocabularyBuilder
+//
+//  Created by Lucas on 19.07.25.
+//
+
 import Foundation
 import SwiftData
 

@@ -10,13 +10,26 @@ class WordSelectionViewController: UIViewController {
     private let ocrResult: OCRResult
     private var dictionaryService = DictionaryService()
     private let modelContainer: ModelContainer
+    private let textAnalysisService = TextAnalysisService()
+    private let textFormattingService = TextFormattingService()
     weak var delegate: WordSelectionDelegate?
+    
+    // Store analysis result for later word lookup during selection
+    private lazy var textAnalysisResult: TextAnalysisResult = {
+        return textAnalysisService.analyzeText(ocrResult.recognizedText)
+    }()
 
     private lazy var textView: UITextView = {
         let textView = UITextView()
-        textView.text = ocrResult.recognizedText
+        
+        // Use stored analysis result for formatting
+        let formattedText = textFormattingService.formatText(
+            analysisResult: textAnalysisResult,
+            configuration: .vocabularyLearning
+        )
+        
+        textView.attributedText = formattedText
         textView.isEditable = false
-        textView.font = UIFont.systemFont(ofSize: 16)
         textView.translatesAutoresizingMaskIntoConstraints = false
         return textView
     }()
@@ -79,29 +92,49 @@ class WordSelectionViewController: UIViewController {
                 let cleanWord = word.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
 
                 if !cleanWord.isEmpty {
+                    // Convert UITextRange to NSRange for analysis lookup
+                    let nsRange = NSRange(
+                        location: textView.offset(from: textView.beginningOfDocument, to: wordRange.start),
+                        length: textView.offset(from: wordRange.start, to: wordRange.end)
+                    )
+                    
+                    // Lookup word analysis from stored result
+                    let wordAnalysis = textAnalysisResult.wordAnalysis(bestMatchingRange: nsRange)
+                    
                     let linguisticContext = extractLinguisticContext(around: wordRange)
-                    handleWordSelection(cleanWord, linguisticContext: linguisticContext)
+                    self.handleWordSelection(
+                        cleanWord,
+                        lexicalClass: wordAnalysis?.lexicalClass,
+                        language: wordAnalysis?.language,
+                        linguisticContext: linguisticContext
+                    )
                 }
             }
         }
     }
 
-    private func handleWordSelection(_ word: String, linguisticContext: String?) {
+    private func handleWordSelection(_ word: String, lexicalClass: LexicalClass?, language: Language?, linguisticContext: String?) {
+        // Enhance alert message with grammatical info if available
+        var message = "This will fetch the definition and add it to your vocabulary list."
+        if let lexicalClass = lexicalClass {
+            message = "This \(lexicalClass.rawValue.lowercased()) will be added to your vocabulary list."
+        }
+        
         let alert = UIAlertController(
             title: "Add \"\(word)\" to vocabulary?",
-            message: "This will fetch the definition and add it to your vocabulary list.",
+            message: message,
             preferredStyle: .alert
         )
 
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Add", style: .default) { [weak self] _ in
-            self?.addWordToVocabulary(word, linguisticContext: linguisticContext)
+            self?.addWordToVocabulary(word, lexicalClass: lexicalClass, language: language, linguisticContext: linguisticContext)
         })
 
         present(alert, animated: true)
     }
 
-    private func addWordToVocabulary(_ word: String, linguisticContext: String?) {
+    private func addWordToVocabulary(_ word: String, lexicalClass: LexicalClass?, language: Language?, linguisticContext: String?) {
         Task {
             let loadingAlert = UIAlertController(title: "Loading...", message: "Fetching definition", preferredStyle: .alert)
             await MainActor.run {
@@ -109,7 +142,13 @@ class WordSelectionViewController: UIViewController {
             }
 
             do {
-                let dictionaryEntry = try await dictionaryService.fetchDefinition(for: word, linguisticContext: linguisticContext)
+                // Use enhanced dictionary service with lexical class and language context
+                let dictionaryEntry = try await dictionaryService.fetchDefinition(
+                    for: word,
+                    lexicalClass: lexicalClass,
+                    language: language,
+                    linguisticContext: linguisticContext
+                )
                 await MainActor.run {
                     loadingAlert.dismiss(animated: true)
                     saveWordToDatabase(word: word, dictionaryEntry: dictionaryEntry)
@@ -160,7 +199,7 @@ class WordSelectionViewController: UIViewController {
     }
 
     private func extractLinguisticContext(around wordRange: UITextRange) -> String {
-        let text = textView.text ?? ""
+        let text = textView.attributedText?.string ?? ""
         let nsRange = NSRange(location: textView.offset(from: textView.beginningOfDocument, to: wordRange.start), 
                              length: textView.offset(from: wordRange.start, to: wordRange.end))
         

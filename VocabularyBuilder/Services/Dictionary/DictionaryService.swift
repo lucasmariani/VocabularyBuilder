@@ -35,15 +35,15 @@ class DictionaryService {
         let openAIProvider = OpenAIDictionaryService()
         self.init(provider: openAIProvider)
     }
-
-    func fetchDefinition(for word: String, linguisticContext: String? = nil) async throws -> DictionaryEntry {
+    
+    func fetchDefinition(for word: String, lexicalClass: LexicalClass?, language: Language?, linguisticContext: String?) async throws -> DictionaryEntry {
         isLoading = true
 
         defer {
             isLoading = false
         }
 
-        return try await provider.fetchDefinition(for: word, linguisticContext: linguisticContext)
+        return try await provider.fetchDefinition(for: word, lexicalClass: lexicalClass, language: language, linguisticContext: linguisticContext)
     }
 
     func fetchDefinitionMock(for word: String) async -> DictionaryEntry {

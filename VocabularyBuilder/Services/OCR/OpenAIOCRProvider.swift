@@ -7,21 +7,13 @@ class OpenAIOCRProvider: OCRProviding {
     private let openAIService = OpenAIService()
     
     var isAvailable: Bool {
-        guard let apiKey = Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String else {
-            return false
-        }
-        return !apiKey.isEmpty
+        self.openAIService.isAvailable
     }
     
     func recognizeText(from image: UIImage) async -> OCRResult? {
         do {
-            let recognizedText = try await openAIService.extractTextFromImage(image)
-            
-            // Since we can't easily create RecognizedTextObservation objects,
-            // we'll use a simple Vision request to create legitimate observations
-            // but with the OpenAI text content
-//            let observations = await createObservationsForText(recognizedText, from: image)
-            
+            let recognizedText = try await self.openAIService.extractTextFromImage(image)
+
             let result = OCRResult(
                 recognizedText: recognizedText,
                 confidence: 0.95, // OpenAI generally has high confidence

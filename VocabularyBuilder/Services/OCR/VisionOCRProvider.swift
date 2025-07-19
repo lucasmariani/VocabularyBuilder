@@ -43,17 +43,9 @@ class VisionOCRProvider: OCRProviding {
                         let result = OCRResult(
                             recognizedText: singleLinesText,
                             confidence: avgConfidence,
-//                            boundingBox: self.calculateOverallBoundingBox(from: observations),
                             boundingBox: CGRect(),
                             textObservations: observations
                         )
-
-//            let result = OCRResult(
-//                recognizedText: singleLinesText,
-//                confidence: avgConfidence,
-//                boundingBox: CGRect(),
-//                textObservations: []
-//            )
 
             return result
         } catch {
@@ -92,23 +84,4 @@ class VisionOCRProvider: OCRProviding {
 
         return newArray.map(\.line).joined(separator: "\n")
     }
-
-//    private func calculateOverallBoundingBox(from observations: [DocumentObservation]) -> CGRect {
-//        guard !observations.isEmpty else { return .zero }
-//
-//        var minX: CGFloat = 1.0
-//        var minY: CGFloat = 1.0
-//        var maxX: CGFloat = 0.0
-//        var maxY: CGFloat = 0.0
-//
-//        for observation in observations {
-//            let bounds = observation.document.text.
-//            minX = min(minX, bounds.cgRect.minX)
-//            minY = min(minY, bounds.cgRect.minY)
-//            maxX = max(maxX, bounds.cgRect.maxX)
-//            maxY = max(maxY, bounds.cgRect.maxY)
-//        }
-//
-//        return CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
-//    }
 }
