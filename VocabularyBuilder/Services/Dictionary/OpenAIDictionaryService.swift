@@ -180,21 +180,21 @@ enum OpenAIDictionaryError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidURL:
-            return "Invalid URL for OpenAI request"
+            return NSLocalizedString("error.openai.invalidUrl", comment: "Invalid URL error")
         case .invalidResponse:
-            return "Invalid response from OpenAI"
+            return NSLocalizedString("error.openai.invalidResponse", comment: "Invalid response error")
         case .apiError(let statusCode):
-            return "OpenAI API error with status code: \(statusCode)"
+            return String(format: NSLocalizedString("error.openai.apiError", comment: "API error"), statusCode)
         case .noContent:
-            return "No content received from OpenAI"
+            return NSLocalizedString("error.openai.noContent", comment: "No content error")
         case .parsingError:
-            return "Error parsing OpenAI response"
+            return NSLocalizedString("error.openai.parsingError", comment: "Parsing error")
         case .networkError(let error):
-            return "Network error: \(error.localizedDescription)"
+            return String(format: NSLocalizedString("error.openai.networkError", comment: "Network error"), error.localizedDescription)
         case .wordNotFound:
-            return "Word not found in OpenAI dictionary"
+            return NSLocalizedString("error.openai.wordNotFound", comment: "Word not found error")
         case .missingAPIKey:
-            return "OpenAI API key is missing"
+            return NSLocalizedString("error.openai.missingApiKey", comment: "Missing API key error")
         }
     }
 }

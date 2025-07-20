@@ -55,7 +55,7 @@ class WordDetailViewController: UIViewController {
 
     private lazy var definitionHeaderLabel: UILabel = {
         let label = UILabel()
-        label.text = "Definition"
+        label.text = NSLocalizedString("section.definition", comment: "Definition section header")
         label.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -76,7 +76,7 @@ class WordDetailViewController: UIViewController {
 
     private lazy var contextHeaderLabel: UILabel = {
         let label = UILabel()
-        label.text = "Context"
+        label.text = NSLocalizedString("section.context", comment: "Context section header")
         label.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -112,7 +112,7 @@ class WordDetailViewController: UIViewController {
         view.backgroundColor = .systemBackground
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "Delete",
+            title: NSLocalizedString("button.delete", comment: "Delete button"),
             style: .plain,
             target: self,
             action: #selector(deleteButtonTapped)
@@ -189,7 +189,7 @@ class WordDetailViewController: UIViewController {
 
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .full
-        dateLabel.text = "Added on \(dateFormatter.string(from: word.dateAdded))"
+        dateLabel.text = String(format: NSLocalizedString("date.added.format", comment: "Date added format"), dateFormatter.string(from: word.dateAdded))
 
         definitionLabel.text = "  \(word.definition)  "
 
@@ -259,13 +259,13 @@ class WordDetailViewController: UIViewController {
 
     @objc private func deleteButtonTapped() {
         let alert = UIAlertController(
-            title: "Delete Word",
-            message: "Are you sure you want to delete \"\(word.word)\" from your vocabulary?",
+            title: NSLocalizedString("alert.deleteWord.title", comment: "Delete word alert title"),
+            message: String(format: NSLocalizedString("alert.deleteWord.message", comment: "Delete word alert message"), word.word),
             preferredStyle: .alert
         )
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: NSLocalizedString("button.cancel", comment: "Cancel button"), style: .cancel))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("button.delete", comment: "Delete button"), style: .destructive) { [weak self] _ in
             self?.deleteWord()
         })
 

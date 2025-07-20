@@ -85,7 +85,7 @@ class VocabularyTableViewCell: UITableViewCell {
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium
-        dateLabel.text = "Added \(dateFormatter.string(from: word.dateAdded))"
+        dateLabel.text = String(format: NSLocalizedString("date.added.cell.format", comment: "Date added cell format"), dateFormatter.string(from: word.dateAdded))
 
         if let partOfSpeech = word.partOfSpeech {
             partOfSpeechLabel.text = " \(partOfSpeech.uppercased()) "

@@ -30,7 +30,7 @@ class VocabularyListViewController: UIViewController {
         let searchController = UISearchController(searchResultsController: nil)
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = "Search words..."
+        searchController.searchBar.placeholder = NSLocalizedString("search.placeholder", comment: "Search placeholder text")
         return searchController
     }()
 
@@ -53,14 +53,14 @@ class VocabularyListViewController: UIViewController {
         iconImageView.translatesAutoresizingMaskIntoConstraints = false
 
         let titleLabel = UILabel()
-        titleLabel.text = "No vocabulary words yet"
+        titleLabel.text = NSLocalizedString("vocabulary.empty.title", comment: "Empty vocabulary title")
         titleLabel.font = UIFont.systemFont(ofSize: 22, weight: .medium)
         titleLabel.textColor = .systemGray
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         let subtitleLabel = UILabel()
-        subtitleLabel.text = "Use the camera to scan book pages and add new words"
+        subtitleLabel.text = NSLocalizedString("vocabulary.empty.subtitle", comment: "Empty vocabulary subtitle")
         subtitleLabel.font = UIFont.systemFont(ofSize: 16)
         subtitleLabel.textColor = .systemGray2
         subtitleLabel.textAlignment = .center
@@ -110,7 +110,7 @@ class VocabularyListViewController: UIViewController {
     }
 
     private func setupUI() {
-        title = "Vocabulary"
+        title = NSLocalizedString("navigation.vocabulary", comment: "Vocabulary navigation title")
         navigationController?.navigationBar.prefersLargeTitles = false
         navigationItem.searchController = searchController
 
@@ -236,7 +236,7 @@ class VocabularyListViewController: UIViewController {
 
         // Add "All Languages" option
         let allLanguagesAction = UIAction(
-            title: "All Languages",
+            title: NSLocalizedString("filter.allLanguages", comment: "All languages filter option"),
             image: nil,
             state: self.selectedLanguage == nil ? .on : .off
         ) { [weak self] _ in
@@ -247,7 +247,7 @@ class VocabularyListViewController: UIViewController {
         }
         menuActions.append(allLanguagesAction)
 
-        return UIMenu(title: "Filter by Language", children: menuActions)
+        return UIMenu(title: NSLocalizedString("filter.byLanguage", comment: "Filter by language menu title"), children: menuActions)
     }
 
     private func getAvailableLanguages() -> [String] {

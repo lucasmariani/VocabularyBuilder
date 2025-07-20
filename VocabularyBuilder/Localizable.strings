@@ -1,0 +1,178 @@
+/* 
+  Localizable.strings
+  VocabularyBuilder
+
+  Created by Lucas.
+*/
+
+// MARK: - Navigation & Tab Bar
+"tab.scan" = "Scan";
+"tab.vocabulary" = "Vocabulary";
+"navigation.settings" = "Settings";
+"navigation.selectWord" = "Select Word";
+"navigation.vocabulary" = "Vocabulary";
+
+// MARK: - Buttons
+"button.capture" = "Capture";
+"button.capturing" = "Capturing...";
+"button.ok" = "OK";
+"button.cancel" = "Cancel";
+"button.add" = "Add";
+"button.delete" = "Delete";
+
+// MARK: - Camera & Permissions
+"camera.permission.required" = "Camera permission is required to scan book pages";
+"camera.processing" = "Processing image...";
+
+// MARK: - Search & Filters
+"search.placeholder" = "Search words...";
+"filter.allLanguages" = "All Languages";
+"filter.byLanguage" = "Filter by Language";
+
+// MARK: - Empty States
+"vocabulary.empty.title" = "No vocabulary words yet";
+"vocabulary.empty.subtitle" = "Use the camera to scan book pages and add new words";
+
+// MARK: - Word Detail Sections
+"section.definition" = "Definition";
+"section.context" = "Context";
+
+// MARK: - Date Formatting
+"date.added.format" = "Added on %@";
+"date.added.cell.format" = "Added %@";
+
+// MARK: - Alerts - OCR
+"alert.ocr.failed.title" = "OCR Failed";
+"alert.ocr.failed.message" = "Could not extract text from image using %@";
+
+// MARK: - Alerts - Word Addition
+"alert.addWord.title" = "Add \"%@\" to vocabulary?";
+"alert.addWord.message.basic" = "This will fetch the definition and add it to your vocabulary list.";
+"alert.addWord.message.enhanced" = "This %@ will be added to your vocabulary list.";
+
+// MARK: - Alerts - Word Deletion
+"alert.deleteWord.title" = "Delete Word";
+"alert.deleteWord.message" = "Are you sure you want to delete \"%@\" from your vocabulary?";
+
+// MARK: - Loading States
+"loading.title" = "Loading...";
+"loading.fetchingDefinition" = "Fetching definition";
+
+// MARK: - Error Messages
+"error.title" = "Error";
+"error.fetchDefinition" = "Could not fetch definition: %@";
+"error.noDefinitionAvailable" = "No definition available";
+
+// MARK: - Settings Sections
+"settings.section.learningType" = "Learning Type";
+"settings.section.ocrProvider" = "OCR Provider";
+"settings.footer.learningType" = "Choose your learning approach to optimize the vocabulary building experience";
+"settings.footer.ocrProvider" = "Choose how to extract text from book page images";
+
+// MARK: - Learning Types
+"learningType.newLanguage" = "Learning new language";
+"learningType.addingVocabulary" = "Adding Vocabulary to known language";
+"learningType.description.newLanguage" = "Definition will be presented in chosen app language";
+"learningType.description.addingVocabulary" = "Definition will be presented in looked-up word language";
+
+// MARK: - OCR Providers
+"ocrProvider.vision" = "iOS Vision";
+"ocrProvider.openai" = "OpenAI";
+
+// MARK: - Lexical Classes
+"lexicalClass.noun" = "Noun";
+"lexicalClass.adjective" = "Adjective";
+"lexicalClass.verb" = "Verb";
+"lexicalClass.adverb" = "Adverb";
+"lexicalClass.pronoun" = "Pronoun";
+"lexicalClass.determiner" = "Determiner";
+"lexicalClass.particle" = "Particle";
+"lexicalClass.preposition" = "Preposition";
+"lexicalClass.number" = "Number";
+"lexicalClass.conjunction" = "Conjunction";
+"lexicalClass.interjection" = "Interjection";
+"lexicalClass.classifier" = "Classifier";
+"lexicalClass.idiom" = "Idiom";
+
+// MARK: - Languages
+"language.amharic" = "Amharic";
+"language.arabic" = "Arabic";
+"language.armenian" = "Armenian";
+"language.bengali" = "Bengali";
+"language.bulgarian" = "Bulgarian";
+"language.burmese" = "Burmese";
+"language.catalan" = "Catalan";
+"language.cherokee" = "Cherokee";
+"language.chinese" = "Chinese";
+"language.croatian" = "Croatian";
+"language.czech" = "Czech";
+"language.danish" = "Danish";
+"language.dutch" = "Dutch";
+"language.english" = "English";
+"language.finnish" = "Finnish";
+"language.french" = "French";
+"language.georgian" = "Georgian";
+"language.german" = "German";
+"language.greek" = "Greek";
+"language.gujarati" = "Gujarati";
+"language.hebrew" = "Hebrew";
+"language.hindi" = "Hindi";
+"language.hungarian" = "Hungarian";
+"language.icelandic" = "Icelandic";
+"language.indonesian" = "Indonesian";
+"language.italian" = "Italian";
+"language.japanese" = "Japanese";
+"language.kannada" = "Kannada";
+"language.kazakh" = "Kazakh";
+"language.khmer" = "Khmer";
+"language.korean" = "Korean";
+"language.lao" = "Lao";
+"language.latvian" = "Latvian";
+"language.lithuanian" = "Lithuanian";
+"language.malayalam" = "Malayalam";
+"language.marathi" = "Marathi";
+"language.mongolian" = "Mongolian";
+"language.norwegian" = "Norwegian";
+"language.oriya" = "Oriya";
+"language.persian" = "Persian";
+"language.polish" = "Polish";
+"language.portuguese" = "Portuguese";
+"language.punjabi" = "Punjabi";
+"language.romanian" = "Romanian";
+"language.russian" = "Russian";
+"language.serbian" = "Serbian";
+"language.sinhalese" = "Sinhalese";
+"language.slovak" = "Slovak";
+"language.spanish" = "Spanish";
+"language.swedish" = "Swedish";
+"language.tamil" = "Tamil";
+"language.telugu" = "Telugu";
+"language.thai" = "Thai";
+"language.tibetan" = "Tibetan";
+"language.turkish" = "Turkish";
+"language.ukrainian" = "Ukrainian";
+"language.urdu" = "Urdu";
+"language.vietnamese" = "Vietnamese";
+"language.unknown" = "Unknown";
+
+// MARK: - Error Messages - OCR Service
+"error.ocr.notAvailable" = "OCR provider is not available";
+"error.ocr.missingApiKey" = "OpenAI API key is missing";
+"error.ocr.networkError" = "Network error: %@";
+"error.ocr.invalidResponse" = "Invalid response from OCR service";
+
+// MARK: - Error Messages - Dictionary Service
+"error.dictionary.invalidUrl" = "Invalid URL for dictionary request";
+"error.dictionary.noData" = "No data received from dictionary service";
+"error.dictionary.wordNotFound" = "Word not found in dictionary";
+"error.dictionary.parsingError" = "Error parsing dictionary response";
+
+// MARK: - Error Messages - OpenAI Dictionary Service
+"error.openai.invalidUrl" = "Invalid URL for OpenAI request";
+"error.openai.invalidResponse" = "Invalid response from OpenAI";
+"error.openai.apiError" = "OpenAI API error with status code: %d";
+"error.openai.noContent" = "No content received from OpenAI";
+"error.openai.parsingError" = "Error parsing OpenAI response";
+"error.openai.networkError" = "Network error: %@";
+"error.openai.wordNotFound" = "Word not found in OpenAI dictionary";
+"error.openai.missingApiKey" = "OpenAI API key is missing";

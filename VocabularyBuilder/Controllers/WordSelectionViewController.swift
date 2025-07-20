@@ -60,7 +60,7 @@ class WordSelectionViewController: UIViewController {
 
     private func setupUI() {
         view.backgroundColor = .systemBackground
-        title = "Select Word"
+        title = NSLocalizedString("navigation.selectWord", comment: "Select word navigation title")
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .cancel,
@@ -122,19 +122,19 @@ class WordSelectionViewController: UIViewController {
 
     private func handleWordSelection(_ word: String, lexicalClass: LexicalClass?, language: Language?, linguisticContext: String?) {
         // Enhance alert message with grammatical info if available
-        var message = "This will fetch the definition and add it to your vocabulary list."
+        var message = NSLocalizedString("alert.addWord.message.basic", comment: "Basic add word message")
         if let lexicalClass = lexicalClass {
-            message = "This \(lexicalClass.rawValue.lowercased()) will be added to your vocabulary list."
+            message = String(format: NSLocalizedString("alert.addWord.message.enhanced", comment: "Enhanced add word message"), lexicalClass.displayName.lowercased())
         }
 
         let alert = UIAlertController(
-            title: "Add \"\(word)\" to vocabulary?",
+            title: String(format: NSLocalizedString("alert.addWord.title", comment: "Add word alert title"), word),
             message: message,
             preferredStyle: .alert
         )
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Add", style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: NSLocalizedString("button.cancel", comment: "Cancel button"), style: .cancel))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("button.add", comment: "Add button"), style: .default) { [weak self] _ in
             self?.addWordToVocabulary(word, lexicalClass: lexicalClass, language: language, linguisticContext: linguisticContext)
         })
 
@@ -143,7 +143,7 @@ class WordSelectionViewController: UIViewController {
 
     private func addWordToVocabulary(_ word: String, lexicalClass: LexicalClass?, language: Language?, linguisticContext: String?) {
         Task {
-            let loadingAlert = UIAlertController(title: "Loading...", message: "Fetching definition", preferredStyle: .alert)
+            let loadingAlert = UIAlertController(title: NSLocalizedString("loading.title", comment: "Loading title"), message: NSLocalizedString("loading.fetchingDefinition", comment: "Fetching definition message"), preferredStyle: .alert)
             await MainActor.run {
                 present(loadingAlert, animated: true)
             }
@@ -163,14 +163,14 @@ class WordSelectionViewController: UIViewController {
             } catch {
                 await MainActor.run {
                     loadingAlert.dismiss(animated: true)
-                    showError("Could not fetch definition: \(error.localizedDescription)")
+                    showError(String(format: NSLocalizedString("error.fetchDefinition", comment: "Fetch definition error"), error.localizedDescription))
                 }
             }
         }
     }
 
     private func saveWordToDatabase(word: String, dictionaryEntry: DictionaryEntry) {
-        let definition = dictionaryEntry.meanings.first?.definitions.first?.definition ?? "No definition available"
+        let definition = dictionaryEntry.meanings.first?.definitions.first?.definition ?? NSLocalizedString("error.noDefinitionAvailable", comment: "No definition available")
         let partOfSpeech = dictionaryEntry.meanings.first?.partOfSpeech
 
         let vocabularyWord = VocabularyWord(
@@ -233,8 +233,8 @@ class WordSelectionViewController: UIViewController {
     }
 
     private func showError(_ message: String) {
-        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        let alert = UIAlertController(title: NSLocalizedString("error.title", comment: "Error alert title"), message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("button.ok", comment: "OK button"), style: .default))
         present(alert, animated: true)
     }
 

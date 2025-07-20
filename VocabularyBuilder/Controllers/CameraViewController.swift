@@ -34,7 +34,7 @@ class CameraViewController: UIViewController {
     private lazy var captureButton: UIButton = {
         let button = UIButton(type: .system)
         var config = UIButton.Configuration.filled()
-        config.title = "Capture"
+        config.title = NSLocalizedString("button.capture", comment: "Capture button title")
         config.cornerStyle = .capsule
         config.baseBackgroundColor = .white
         config.baseForegroundColor = .black
@@ -49,7 +49,7 @@ class CameraViewController: UIViewController {
 
     private lazy var permissionLabel: UILabel = {
         let label = UILabel()
-        label.text = "Camera permission is required to scan book pages"
+        label.text = NSLocalizedString("camera.permission.required", comment: "Camera permission message")
         label.textAlignment = .center
         label.numberOfLines = 0
         label.textColor = .systemGray
@@ -212,7 +212,7 @@ class CameraViewController: UIViewController {
         captureButton.isEnabled = !isCapturing && !isProcessing
 
         var config = captureButton.configuration
-        config?.title = isCapturing ? "Capturing..." : "Capture"
+        config?.title = isCapturing ? NSLocalizedString("button.capturing", comment: "Capturing button title") : NSLocalizedString("button.capture", comment: "Capture button title")
         captureButton.configuration = config
 
         // Show/hide processing overlay
@@ -241,11 +241,11 @@ class CameraViewController: UIViewController {
                 // Show error alert
                 await MainActor.run {
                     let alert = UIAlertController(
-                        title: "OCR Failed",
-                        message: "Could not extract text from image using \(ocrServiceManager.selectedProviderType.displayName)",
+                        title: NSLocalizedString("alert.ocr.failed.title", comment: "OCR failed alert title"),
+                        message: String(format: NSLocalizedString("alert.ocr.failed.message", comment: "OCR failed alert message"), ocrServiceManager.selectedProviderType.displayName),
                         preferredStyle: .alert
                     )
-                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    alert.addAction(UIAlertAction(title: NSLocalizedString("button.ok", comment: "OK button"), style: .default))
                     self.present(alert, animated: true)
                 }
             }
@@ -280,7 +280,7 @@ class CameraViewController: UIViewController {
         overlay.translatesAutoresizingMaskIntoConstraints = false
 
         let label = UILabel()
-        label.text = "Processing image..."
+        label.text = NSLocalizedString("camera.processing", comment: "Processing image label")
         label.textColor = .white
         label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false

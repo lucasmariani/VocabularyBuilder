@@ -14,9 +14,9 @@ enum OCRProviderType: String, CaseIterable {
     var displayName: String {
         switch self {
         case .vision:
-            return "iOS Vision"
+            return NSLocalizedString("ocrProvider.vision", comment: "iOS Vision OCR provider")
         case .openAI:
-            return "OpenAI"
+            return NSLocalizedString("ocrProvider.openai", comment: "OpenAI OCR provider")
         }
     }
 }
@@ -30,13 +30,13 @@ enum OCRProviderError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .providerNotAvailable:
-            return "OCR provider is not available"
+            return NSLocalizedString("error.ocr.notAvailable", comment: "OCR provider not available")
         case .apiKeyMissing:
-            return "OpenAI API key is missing"
+            return NSLocalizedString("error.ocr.missingApiKey", comment: "Missing API key error")
         case .networkError(let error):
-            return "Network error: \(error.localizedDescription)"
+            return String(format: NSLocalizedString("error.ocr.networkError", comment: "Network error"), error.localizedDescription)
         case .invalidResponse:
-            return "Invalid response from OCR service"
+            return NSLocalizedString("error.ocr.invalidResponse", comment: "Invalid response error")
         }
     }
 }

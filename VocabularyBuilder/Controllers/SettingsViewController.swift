@@ -12,15 +12,15 @@ class SettingsViewController: UIViewController {
 
     private struct Constants {
         static let reuseIdentifier = "SettingsViewController.SettingsCell"
-        static let viewTitle = "Settings"
+        static let viewTitle = NSLocalizedString("navigation.settings", comment: "Settings title")
 
         // Learning Type Section
-        static let learningTypeHeaderTitle = "Learning Type"
-        static let learningTypeFooterTitle = "Choose your learning approach to optimize the vocabulary building experience"
+        static let learningTypeHeaderTitle = NSLocalizedString("settings.section.learningType", comment: "Learning type section header")
+        static let learningTypeFooterTitle = NSLocalizedString("settings.footer.learningType", comment: "Learning type section footer")
 
         // OCR Provider Section
-        static let ocrProviderHeaderTitle = "OCR Provider"
-        static let ocrProviderFooterTitle = "Choose how to extract text from book page images"
+        static let ocrProviderHeaderTitle = NSLocalizedString("settings.section.ocrProvider", comment: "OCR provider section header")
+        static let ocrProviderFooterTitle = NSLocalizedString("settings.footer.ocrProvider", comment: "OCR provider section footer")
     }
 
     private let ocrServiceManager: OCRServiceManager

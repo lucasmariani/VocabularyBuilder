@@ -21,7 +21,7 @@ struct LanguageConverter {
     ///   - code: The language code
     ///   - fallback: The string to return if the language code is not recognized
     /// - Returns: The English name of the language, or the fallback string
-    static func languageName(for code: String, fallback: String = "Unknown") -> String {
+    static func languageName(for code: String, fallback: String = NSLocalizedString("language.unknown", comment: "Unknown language")) -> String {
         languageName(for: code) ?? fallback
     }
     
@@ -29,7 +29,7 @@ struct LanguageConverter {
     /// - Parameter language: The NLLanguage instance
     /// - Returns: The English name of the language
     static func languageName(for language: NLLanguage) -> String {
-        languageName(for: language.rawValue, fallback: "Unknown")
+        languageName(for: language.rawValue, fallback: NSLocalizedString("language.unknown", comment: "Unknown language"))
     }
 }
 

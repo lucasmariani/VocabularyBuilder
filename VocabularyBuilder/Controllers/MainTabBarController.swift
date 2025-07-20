@@ -56,7 +56,7 @@ class MainTabBarController: UITabBarController {
         let cameraNavController = UINavigationController(rootViewController: cameraViewController)
         cameraNavController.navigationItem.largeTitleDisplayMode = .never
         cameraNavController.tabBarItem = UITabBarItem(
-            title: "Scan",
+            title: NSLocalizedString("tab.scan", comment: "Camera tab title"),
             image: UIImage(systemName: "camera"),
             selectedImage: UIImage(systemName: "camera.fill")
         )
@@ -66,7 +66,7 @@ class MainTabBarController: UITabBarController {
         let vocabularyNavController = UINavigationController(rootViewController: vocabularyViewController)
         vocabularyNavController.navigationItem.largeTitleDisplayMode = .never
         vocabularyNavController.tabBarItem = UITabBarItem(
-            title: "Vocabulary",
+            title: NSLocalizedString("tab.vocabulary", comment: "Vocabulary tab title"),
             image: UIImage(systemName: "book"),
             selectedImage: UIImage(systemName: "book.fill")
         )

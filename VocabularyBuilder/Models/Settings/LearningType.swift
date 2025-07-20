@@ -15,18 +15,18 @@ enum LearningType: String, CaseIterable {
     var displayName: String {
         switch self {
         case .newLanguage:
-            return "Learning new language"
+            return NSLocalizedString("learningType.newLanguage", comment: "Learning new language option")
         case .addingVocabulary:
-            return "Adding Vocabulary to known language"
+            return NSLocalizedString("learningType.addingVocabulary", comment: "Adding vocabulary option")
         }
     }
     
     var description: String {
         switch self {
         case .newLanguage:
-            return "Definition will be presented in chosen app language"
+            return NSLocalizedString("learningType.description.newLanguage", comment: "New language description")
         case .addingVocabulary:
-            return "Definition will be presented in looked-up word language"
+            return NSLocalizedString("learningType.description.addingVocabulary", comment: "Adding vocabulary description")
         }
     }
 }

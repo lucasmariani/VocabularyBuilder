@@ -117,13 +117,13 @@ enum DictionaryError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidURL:
-            return "Invalid URL for dictionary request"
+            return NSLocalizedString("error.dictionary.invalidUrl", comment: "Invalid URL error")
         case .noData:
-            return "No data received from dictionary service"
+            return NSLocalizedString("error.dictionary.noData", comment: "No data error")
         case .wordNotFound:
-            return "Word not found in dictionary"
+            return NSLocalizedString("error.dictionary.wordNotFound", comment: "Word not found error")
         case .parsingError:
-            return "Error parsing dictionary response"
+            return NSLocalizedString("error.dictionary.parsingError", comment: "Parsing error")
         }
     }
 }
