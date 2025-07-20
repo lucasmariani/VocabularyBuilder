@@ -28,7 +28,7 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
         
         // Enhanced context integration
         if let language {
-            systemPrompt += "\n - The word is detected to be in the language: \(language.englishName)"
+            systemPrompt += "\n - The word is detected to be in the language: \(language.englishName), but make your own assesment."
         }
         
         if let lexicalClass {
@@ -69,7 +69,6 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
             properties: [
                 "word": JsonSchema(type: .string, description: "The word"),
                 "language": JsonSchema(type: .string, description: "The language the word is a member of"),
-                "pronunciation": JsonSchema(type: .string, description: "How to pronounce it"),
                 "partOfSpeech": JsonSchema(type: .string, description: "noun, verb, adverb, adjective, etc."),
                 "definition": JsonSchema(type: .string, description: "Primary meaning"),
                 "example": JsonSchema(type: .string, description: "Example sentence"),
@@ -79,7 +78,7 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
                     items: JsonSchema(type: .string)
                 )
             ],
-            required: ["word", "language", "pronunciation", "partOfSpeech", "definition", "example", "synonyms"]
+            required: ["word", "language", "partOfSpeech", "definition", "example", "synonyms"]
         )
         
         let request = OpenAIForSwift.ModelResponseParameter(
@@ -130,7 +129,6 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
         return DictionaryEntry(
             word: vocabularyResponse.word,
             language: vocabularyResponse.language,
-            phonetic: vocabularyResponse.pronunciation,
             meanings: [meaning]
         )
     }
@@ -160,7 +158,6 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
 private struct SimplifiedVocabularyResponse: Codable {
     let word: String
     let language: String
-    let pronunciation: String
     let partOfSpeech: String
     let definition: String
     let example: String

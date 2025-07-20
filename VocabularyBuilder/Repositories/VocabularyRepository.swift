@@ -70,16 +70,6 @@ class VocabularyRepository {
         save()
     }
 
-    func updateMastery(for word: VocabularyWord, level: Int) {
-        word.masteryLevel = level
-        save()
-    }
-
-    func incrementStudyCount(for word: VocabularyWord) {
-        word.studyCount += 1
-        save()
-    }
-
     private func save() {
         do {
             try modelContext.save()

@@ -4,7 +4,6 @@ import Observation
 struct DictionaryEntry {
     let word: String
     let language: String
-    let phonetic: String?
     let meanings: [Meaning]
 
     struct Meaning {
@@ -50,7 +49,6 @@ class DictionaryService {
         let mockEntry = DictionaryEntry(
             word: word,
             language: "spanish",
-            phonetic: "/\(word)/",
             meanings: [
                 DictionaryEntry.Meaning(
                     partOfSpeech: "noun",
@@ -87,7 +85,6 @@ class DictionaryService {
         return DictionaryEntry(
             word: response.word,
             language: response.language,
-            phonetic: response.phonetic,
             meanings: meanings
         )
     }

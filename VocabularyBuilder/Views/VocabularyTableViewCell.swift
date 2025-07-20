@@ -40,15 +40,6 @@ class VocabularyTableViewCell: UITableViewCell {
         return label
     }()
     
-    private lazy var studyCountLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 12)
-        label.textColor = .tertiaryLabel
-        label.textAlignment = .right
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
     private var partOfSpeechWidthConstraint: NSLayoutConstraint?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -65,8 +56,7 @@ class VocabularyTableViewCell: UITableViewCell {
         contentView.addSubview(partOfSpeechLabel)
         contentView.addSubview(definitionLabel)
         contentView.addSubview(dateLabel)
-        contentView.addSubview(studyCountLabel)
-        
+
         partOfSpeechWidthConstraint = partOfSpeechLabel.widthAnchor.constraint(equalToConstant: 0)
         
         NSLayoutConstraint.activate([
@@ -86,10 +76,6 @@ class VocabularyTableViewCell: UITableViewCell {
             dateLabel.topAnchor.constraint(equalTo: definitionLabel.bottomAnchor, constant: 8),
             dateLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             dateLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12),
-            
-            studyCountLabel.centerYAnchor.constraint(equalTo: dateLabel.centerYAnchor),
-            studyCountLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            studyCountLabel.leadingAnchor.constraint(greaterThanOrEqualTo: dateLabel.trailingAnchor, constant: 8)
         ])
     }
     
@@ -100,14 +86,7 @@ class VocabularyTableViewCell: UITableViewCell {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium
         dateLabel.text = "Added \(dateFormatter.string(from: word.dateAdded))"
-        
-        if word.studyCount > 0 {
-            studyCountLabel.text = "Studied \(word.studyCount) times"
-            studyCountLabel.isHidden = false
-        } else {
-            studyCountLabel.isHidden = true
-        }
-        
+
         if let partOfSpeech = word.partOfSpeech {
             partOfSpeechLabel.text = " \(partOfSpeech.uppercased()) "
             partOfSpeechLabel.isHidden = false
@@ -121,7 +100,6 @@ class VocabularyTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         partOfSpeechLabel.isHidden = false
-        studyCountLabel.isHidden = false
         partOfSpeechWidthConstraint?.isActive = false
     }
 }

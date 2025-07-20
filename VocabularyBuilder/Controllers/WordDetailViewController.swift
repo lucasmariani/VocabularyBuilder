@@ -74,27 +74,6 @@ class WordDetailViewController: UIViewController {
         return label
     }()
 
-    private lazy var pronunciationHeaderLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Pronunciation"
-        label.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
-        label.textColor = .label
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
-    private lazy var pronunciationLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16)
-        label.textColor = .secondaryLabel
-        label.numberOfLines = 0
-        label.backgroundColor = UIColor.systemGray6
-        label.layer.cornerRadius = 8
-        label.clipsToBounds = true
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
     private lazy var contextHeaderLabel: UILabel = {
         let label = UILabel()
         label.text = "Context"
@@ -110,71 +89,6 @@ class WordDetailViewController: UIViewController {
         stackView.spacing = 16
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
-    }()
-
-    private lazy var studyHeaderLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Study Progress"
-        label.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
-        label.textColor = .label
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
-    private lazy var studyInfoView: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor.systemGray6
-        view.layer.cornerRadius = 8
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-
-    private lazy var studyCountLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Study Count"
-        label.font = UIFont.systemFont(ofSize: 12)
-        label.textColor = .secondaryLabel
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
-    private lazy var studyCountValueLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
-        label.textColor = .label
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
-    private lazy var masteryLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Mastery Level"
-        label.font = UIFont.systemFont(ofSize: 12)
-        label.textColor = .secondaryLabel
-        label.textAlignment = .right
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
-    private lazy var masteryValueLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
-        label.textColor = .label
-        label.textAlignment = .right
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
-    private lazy var markStudiedButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Mark as Studied", for: .normal)
-        button.backgroundColor = .systemBlue
-        button.setTitleColor(.white, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        button.layer.cornerRadius = 8
-        button.addTarget(self, action: #selector(markAsStudiedTapped), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
     }()
 
     init(vocabularyRepository: VocabularyRepository, word: VocabularyWord) {
@@ -213,18 +127,8 @@ class WordDetailViewController: UIViewController {
         contentView.addSubview(dateLabel)
         contentView.addSubview(definitionHeaderLabel)
         contentView.addSubview(definitionLabel)
-        contentView.addSubview(pronunciationHeaderLabel)
-        contentView.addSubview(pronunciationLabel)
         contentView.addSubview(contextHeaderLabel)
         contentView.addSubview(contextStackView)
-        contentView.addSubview(studyHeaderLabel)
-        contentView.addSubview(studyInfoView)
-        contentView.addSubview(markStudiedButton)
-
-        studyInfoView.addSubview(studyCountLabel)
-        studyInfoView.addSubview(studyCountValueLabel)
-        studyInfoView.addSubview(masteryLabel)
-        studyInfoView.addSubview(masteryValueLabel)
 
         setupConstraints()
     }
@@ -263,48 +167,13 @@ class WordDetailViewController: UIViewController {
             definitionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             definitionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
 
-            pronunciationHeaderLabel.topAnchor.constraint(equalTo: definitionLabel.bottomAnchor, constant: 24),
-            pronunciationHeaderLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            pronunciationHeaderLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-
-            pronunciationLabel.topAnchor.constraint(equalTo: pronunciationHeaderLabel.bottomAnchor, constant: 8),
-            pronunciationLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            pronunciationLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-
-            contextHeaderLabel.topAnchor.constraint(equalTo: pronunciationLabel.bottomAnchor, constant: 24),
+            contextHeaderLabel.topAnchor.constraint(equalTo: definitionLabel.bottomAnchor, constant: 24),
             contextHeaderLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             contextHeaderLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
 
             contextStackView.topAnchor.constraint(equalTo: contextHeaderLabel.bottomAnchor, constant: 8),
             contextStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             contextStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-
-            studyHeaderLabel.topAnchor.constraint(equalTo: contextStackView.bottomAnchor, constant: 24),
-            studyHeaderLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            studyHeaderLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-
-            studyInfoView.topAnchor.constraint(equalTo: studyHeaderLabel.bottomAnchor, constant: 8),
-            studyInfoView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            studyInfoView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            studyInfoView.heightAnchor.constraint(equalToConstant: 80),
-
-            studyCountLabel.topAnchor.constraint(equalTo: studyInfoView.topAnchor, constant: 12),
-            studyCountLabel.leadingAnchor.constraint(equalTo: studyInfoView.leadingAnchor, constant: 16),
-
-            studyCountValueLabel.topAnchor.constraint(equalTo: studyCountLabel.bottomAnchor, constant: 4),
-            studyCountValueLabel.leadingAnchor.constraint(equalTo: studyInfoView.leadingAnchor, constant: 16),
-
-            masteryLabel.topAnchor.constraint(equalTo: studyInfoView.topAnchor, constant: 12),
-            masteryLabel.trailingAnchor.constraint(equalTo: studyInfoView.trailingAnchor, constant: -16),
-
-            masteryValueLabel.topAnchor.constraint(equalTo: masteryLabel.bottomAnchor, constant: 4),
-            masteryValueLabel.trailingAnchor.constraint(equalTo: studyInfoView.trailingAnchor, constant: -16),
-
-            markStudiedButton.topAnchor.constraint(equalTo: studyInfoView.bottomAnchor, constant: 16),
-            markStudiedButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            markStudiedButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            markStudiedButton.heightAnchor.constraint(equalToConstant: 48),
-            markStudiedButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40)
         ])
     }
 
@@ -324,15 +193,6 @@ class WordDetailViewController: UIViewController {
 
         definitionLabel.text = "  \(word.definition)  "
 
-        if let pronunciation = word.pronunciation {
-            pronunciationLabel.text = "  \(pronunciation)  "
-            pronunciationHeaderLabel.isHidden = false
-            pronunciationLabel.isHidden = false
-        } else {
-            pronunciationHeaderLabel.isHidden = true
-            pronunciationLabel.isHidden = true
-        }
-
         // Configure contexts
         if let contexts = word.contexts {
             if contexts.isEmpty {
@@ -348,9 +208,6 @@ class WordDetailViewController: UIViewController {
                 }
             }
         }
-
-        studyCountValueLabel.text = "\(word.studyCount)"
-        masteryValueLabel.text = "\(word.masteryLevel)/5"
     }
 
     private func createContextView(for context: WordContext) -> UIView {
@@ -398,17 +255,6 @@ class WordDetailViewController: UIViewController {
         lastView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -12).isActive = true
 
         return containerView
-    }
-
-    @objc private func markAsStudiedTapped() {
-        vocabularyRepository.incrementStudyCount(for: word)
-        
-        if word.studyCount % 5 == 0 && word.masteryLevel < 5 {
-            vocabularyRepository.updateMastery(for: word, level: word.masteryLevel + 1)
-        }
-        
-        studyCountValueLabel.text = "\(word.studyCount)"
-        masteryValueLabel.text = "\(word.masteryLevel)/5"
     }
 
     @objc private func deleteButtonTapped() {

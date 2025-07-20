@@ -178,7 +178,6 @@ class WordSelectionViewController: UIViewController {
             language: dictionaryEntry.language,
             definition: definition,
             partOfSpeech: partOfSpeech,
-            pronunciation: dictionaryEntry.phonetic
         )
 
         let context = WordContext(
