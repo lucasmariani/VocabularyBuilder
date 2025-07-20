@@ -11,14 +11,14 @@ class OpenAIService {
         }
         return apiKey
     }
-
+    
     public var isAvailable: Bool {
         guard let apiKey = self.apiKey else {
             return false
         }
         return !apiKey.isEmpty
     }
-
+    
     init() {
         guard let apiKey = Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String, !apiKey.isEmpty else {
             fatalError("OpenAI API key is required")
@@ -58,7 +58,7 @@ class OpenAIService {
             maxOutputTokens: 1000,
             temperature: 0.1
         )
-
+        
         do {
             let response = try await openAIService.responseCreate(request)
             

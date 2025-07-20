@@ -1,3 +1,10 @@
+//
+//  Language.swift
+//  VocabularyBuilder
+//
+//  Created by Lucas on 19.07.25.
+//
+
 import Foundation
 
 /// Represents different learning approaches for vocabulary building

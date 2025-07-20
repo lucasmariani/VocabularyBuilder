@@ -1,13 +1,22 @@
+//
+//  Language.swift
+//  VocabularyBuilder
+//
+//  Created by Lucas on 19.07.25.
+//
+
 import UIKit
 import SwiftData
 
 class MainTabBarController: UITabBarController {
     private let modelContainer: ModelContainer
+    private let vocabularyRepository: VocabularyRepository
     private let ocrServiceManager = OCRServiceManager()
     private var vocabularyNavigationController: UINavigationController?
 
     init(modelContainer: ModelContainer) {
         self.modelContainer = modelContainer
+        self.vocabularyRepository = VocabularyRepository(modelContext: modelContainer.mainContext)
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -26,7 +35,7 @@ class MainTabBarController: UITabBarController {
     private func setupTabBar() {
         let appearance = UITabBarAppearance()
         appearance.configureWithDefaultBackground()
-        
+
         // Configure normal state
         appearance.stackedLayoutAppearance.normal.iconColor = .label
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.label]
@@ -43,7 +52,7 @@ class MainTabBarController: UITabBarController {
         print("Setting up view controllers")
 
         // Camera Tab
-        let cameraViewController = CameraViewController(modelContainer: modelContainer, ocrServiceManager: ocrServiceManager)
+        let cameraViewController = CameraViewController(vocabularyRepository: vocabularyRepository, ocrServiceManager: ocrServiceManager)
         let cameraNavController = UINavigationController(rootViewController: cameraViewController)
         cameraNavController.navigationItem.largeTitleDisplayMode = .never
         cameraNavController.tabBarItem = UITabBarItem(
@@ -53,7 +62,7 @@ class MainTabBarController: UITabBarController {
         )
 
         // Vocabulary Tab
-        let vocabularyViewController = VocabularyListViewController(modelContainer: modelContainer, ocrServiceManager: ocrServiceManager)
+        let vocabularyViewController = VocabularyListViewController(vocabularyRepository: vocabularyRepository, ocrServiceManager: ocrServiceManager)
         let vocabularyNavController = UINavigationController(rootViewController: vocabularyViewController)
         vocabularyNavController.navigationItem.largeTitleDisplayMode = .never
         vocabularyNavController.tabBarItem = UITabBarItem(
@@ -62,7 +71,7 @@ class MainTabBarController: UITabBarController {
             selectedImage: UIImage(systemName: "book.fill")
         )
         self.vocabularyNavigationController = vocabularyNavController
-
+        
         viewControllers = [cameraNavController, vocabularyNavController]
         print("View controllers set: \(viewControllers?.count ?? 0)")
     }
@@ -72,7 +81,7 @@ class MainTabBarController: UITabBarController {
 extension MainTabBarController: WordSelectionDelegate {
     func wordSelectionDidAddWord(_ word: VocabularyWord) {
         selectedIndex = 1
-        
+
         guard let vocabularyNavController = vocabularyNavigationController,
               let vocabularyListVC = vocabularyNavController.viewControllers.first as? VocabularyListViewController else {
             return

@@ -40,12 +40,12 @@ class VisionOCRProvider: OCRProviding {
 
             let avgConfidence = observations.isEmpty ? 0.0 : observations.map { $0.confidence }.reduce(0, +) / Float(observations.count)
 
-                        let result = OCRResult(
-                            recognizedText: singleLinesText,
-                            confidence: avgConfidence,
-                            boundingBox: CGRect(),
-                            textObservations: observations
-                        )
+            let result = OCRResult(
+                recognizedText: singleLinesText,
+                confidence: avgConfidence,
+                boundingBox: CGRect(),
+                textObservations: observations
+            )
 
             return result
         } catch {

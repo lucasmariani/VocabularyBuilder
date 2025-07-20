@@ -25,7 +25,7 @@ class TextAnalysisService: TextAnalysisProviding {
         
         // Detect dominant language for the entire text as fallback
         let dominantLanguage = Language(language: tagger.dominantLanguage)
-
+        
         var wordAnalyses: [WordAnalysis] = []
         let range = text.startIndex..<text.endIndex
         let options: NLTagger.Options = [.omitPunctuation, .omitWhitespace]
@@ -37,7 +37,7 @@ class TextAnalysisService: TextAnalysisProviding {
             
             // Get language for this specific word position
             let wordLanguage = dominantLanguage
-
+            
             // Convert Range<String.Index> to NSRange for UITextView compatibility
             let nsRange = NSRange(tokenRange, in: text)
             

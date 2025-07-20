@@ -17,7 +17,7 @@ struct TextFormattingConfiguration {
     let highlightedLexicalClasses: Set<LexicalClass>
     /// Style to apply to highlighted words
     let highlightStyle: TextHighlightStyle
-
+    
     /// Default configuration for vocabulary learning
     static let vocabularyLearning = TextFormattingConfiguration(
         baseFont: UIFont.systemFont(ofSize: 16),

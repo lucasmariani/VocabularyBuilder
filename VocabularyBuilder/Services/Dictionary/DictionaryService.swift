@@ -29,13 +29,13 @@ class DictionaryService {
     init(provider: DictionaryServiceProtocol) {
         self.provider = provider
     }
-    
+
     convenience init() {
         // Default to OpenAI provider - API key configured in Info.plist
         let openAIProvider = OpenAIDictionaryService()
         self.init(provider: openAIProvider)
     }
-    
+
     func fetchDefinition(for word: String, lexicalClass: LexicalClass?, language: Language?, linguisticContext: String?) async throws -> DictionaryEntry {
         isLoading = true
 

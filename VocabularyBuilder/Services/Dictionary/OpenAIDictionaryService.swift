@@ -11,7 +11,7 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
         
         self.openAIService = OpenAIServiceFactory.service(apiKey: apiKey)
     }
-
+    
     func fetchDefinition(for word: String, lexicalClass: LexicalClass?, language: Language?, linguisticContext: String?) async throws -> DictionaryEntry {
         var systemPrompt = """
         You are a comprehensive multilingual dictionary. When given a word, provide a complete dictionary entry.
@@ -38,7 +38,7 @@ class OpenAIDictionaryService: DictionaryServiceProtocol {
         if let linguisticContext {
             systemPrompt += "\n - In order to better ascertain the language and meaning, here is the word within a larger sentence: \(linguisticContext)"
         }
-
+        
         let userPrompt: String
         if let lexicalClass = lexicalClass, let language = language {
             userPrompt = "Define the \(lexicalClass.rawValue.lowercased()) '\(word)' in \(language)"

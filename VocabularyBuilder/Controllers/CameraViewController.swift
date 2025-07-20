@@ -1,10 +1,17 @@
+//
+//  Language.swift
+//  VocabularyBuilder
+//
+//  Created by Lucas on 19.07.25.
+//
+
 import UIKit
 import AVFoundation
 import Observation
 import SwiftData
 
 class CameraViewController: UIViewController {
-    private let modelContainer: ModelContainer
+    private let vocabularyRepository: VocabularyRepository
     private let cameraService = CameraService()
     private let ocrServiceManager: OCRServiceManager
     private var previewLayer: AVCaptureVideoPreviewLayer?
@@ -14,8 +21,8 @@ class CameraViewController: UIViewController {
     private var processingLabel: UILabel?
     private var activityIndicator: UIActivityIndicatorView?
 
-    init(modelContainer: ModelContainer, ocrServiceManager: OCRServiceManager) {
-        self.modelContainer = modelContainer
+    init(vocabularyRepository: VocabularyRepository, ocrServiceManager: OCRServiceManager) {
+        self.vocabularyRepository = vocabularyRepository
         self.ocrServiceManager = ocrServiceManager
         super.init(nibName: nil, bundle: nil)
     }
@@ -68,7 +75,7 @@ class CameraViewController: UIViewController {
         print("📱 View did load - camera authorized: \(cameraService.isAuthorized)")
         setupUI()
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         // Try camera setup here after layout is complete
@@ -90,7 +97,7 @@ class CameraViewController: UIViewController {
         super.viewWillDisappear(animated)
         cameraService.stopSession()
     }
-    
+
     private func updateUIVisibility() {
         let isAuthorized = cameraService.isAuthorized
         permissionLabel.isHidden = isAuthorized
@@ -102,7 +109,7 @@ class CameraViewController: UIViewController {
         view.backgroundColor = .black
         view.addSubview(permissionLabel)
         view.addSubview(captureButton)
-        
+
 
         NSLayoutConstraint.activate([
             permissionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -120,13 +127,13 @@ class CameraViewController: UIViewController {
         setupProcessingOverlay()
 
     }
-    
+
     private func setupPreviewContainer() {
         let container = UIView()
         container.backgroundColor = .black
         container.clipsToBounds = true
         container.translatesAutoresizingMaskIntoConstraints = false
-        
+
         view.addSubview(container)
         self.previewContainer = container
 
@@ -137,7 +144,7 @@ class CameraViewController: UIViewController {
             container.heightAnchor.constraint(equalTo: container.widthAnchor, multiplier: 4/3),
             container.bottomAnchor.constraint(equalTo: captureButton.topAnchor, constant: -20)
         ])
-        
+
         print("📦 Preview container created with definite constraints")
     }
 
@@ -147,25 +154,25 @@ class CameraViewController: UIViewController {
             print("❌ Camera not authorized")
             return
         }
-        
-        guard let container = previewContainer, !container.bounds.isEmpty else { 
+
+        guard let container = previewContainer, !container.bounds.isEmpty else {
             print("❌ Preview container not ready: \(previewContainer?.bounds ?? .zero)")
-            return 
+            return
         }
-        
-        guard let previewLayer = cameraService.setupCameraSession() else { 
+
+        guard let previewLayer = cameraService.setupCameraSession() else {
             print("❌ Failed to setup camera session")
-            return 
+            return
         }
 
         print("📱 Container bounds: \(container.bounds)")
         previewLayer.frame = container.bounds
         container.layer.addSublayer(previewLayer)
         self.previewLayer = previewLayer
-        
+
         // Update camera service with preview frame
         cameraService.updatePreviewFrame(previewLayer.frame)
-        
+
         // Start the session now that everything is set up
         cameraService.startSession()
         print("✅ Camera setup complete")
@@ -173,14 +180,14 @@ class CameraViewController: UIViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
+
         guard let container = previewContainer else {
             print("❌ No preview container")
             return
         }
-        
+
         print("📐 Container bounds: \(container.bounds), authorized: \(cameraService.isAuthorized)")
-        
+
         // Update existing preview layer frame
         if let previewLayer = previewLayer {
             print("🔄 Updating existing preview layer frame")
@@ -196,18 +203,18 @@ class CameraViewController: UIViewController {
             processCapturedImage(newCapturedImage)
             cameraService.resetCaptureImage()
         }
-        
+
         let isCapturing = cameraService.isCapturing
         let isProcessing = ocrServiceManager.isProcessing
 
         updateUIVisibility()
 
         captureButton.isEnabled = !isCapturing && !isProcessing
-        
+
         var config = captureButton.configuration
         config?.title = isCapturing ? "Capturing..." : "Capture"
         captureButton.configuration = config
-        
+
         // Show/hide processing overlay
         processingOverlay?.isHidden = !isProcessing
         if isProcessing {
@@ -215,7 +222,7 @@ class CameraViewController: UIViewController {
         } else {
             activityIndicator?.stopAnimating()
         }
-        
+
         // Update UI visibility based on authorization
         updateUIVisibility()
     }
@@ -223,7 +230,7 @@ class CameraViewController: UIViewController {
     @objc private func captureButtonTapped() {
         cameraService.capturePhoto()
     }
-    
+
 
     private func processCapturedImage(_ image: UIImage) {
         Task {
@@ -252,12 +259,12 @@ class CameraViewController: UIViewController {
         imageView.backgroundColor = .black
         imageView.isHidden = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        
+
         view.addSubview(imageView)
         self.capturedImageView = imageView
-        
+
         guard let container = previewContainer else { return }
-        
+
         NSLayoutConstraint.activate([
             imageView.topAnchor.constraint(equalTo: container.topAnchor),
             imageView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
@@ -265,65 +272,65 @@ class CameraViewController: UIViewController {
             imageView.bottomAnchor.constraint(equalTo: container.bottomAnchor)
         ])
     }
-    
+
     private func setupProcessingOverlay() {
         let overlay = UIView()
         overlay.backgroundColor = UIColor.black.withAlphaComponent(0.5)
         overlay.isHidden = true
         overlay.translatesAutoresizingMaskIntoConstraints = false
-        
+
         let label = UILabel()
         label.text = "Processing image..."
         label.textColor = .white
         label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
-        
+
         let indicator = UIActivityIndicatorView(style: .large)
         indicator.color = .white
         indicator.translatesAutoresizingMaskIntoConstraints = false
-        
+
         overlay.addSubview(label)
         overlay.addSubview(indicator)
         view.addSubview(overlay)
-        
+
         self.processingOverlay = overlay
         self.processingLabel = label
         self.activityIndicator = indicator
-        
+
         NSLayoutConstraint.activate([
             overlay.topAnchor.constraint(equalTo: view.topAnchor),
             overlay.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             overlay.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             overlay.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
+
             indicator.centerXAnchor.constraint(equalTo: overlay.centerXAnchor),
             indicator.centerYAnchor.constraint(equalTo: overlay.centerYAnchor, constant: -20),
-            
+
             label.centerXAnchor.constraint(equalTo: overlay.centerXAnchor),
             label.topAnchor.constraint(equalTo: indicator.bottomAnchor, constant: 16)
         ])
     }
-    
+
     private func showCapturedImage(_ image: UIImage) {
         capturedImageView?.image = image
         capturedImageView?.isHidden = false
         previewLayer?.isHidden = true
         cameraService.stopSession()
     }
-    
+
     private func hideCapturedImage() {
         capturedImageView?.image = nil
         capturedImageView?.isHidden = true
         previewLayer?.isHidden = false
     }
-    
+
     private func showWordSelectionView(with image: UIImage, ocrResult: OCRResult) {
-        let wordSelectionVC = WordSelectionViewController(modelContainer: self.modelContainer, image: image, ocrResult: ocrResult)
+        let wordSelectionVC = WordSelectionViewController(vocabularyRepository: self.vocabularyRepository, image: image, ocrResult: ocrResult)
         
         if let mainTabBarController = self.tabBarController as? MainTabBarController {
             wordSelectionVC.delegate = mainTabBarController
         }
-        
+
         let navController = UINavigationController(rootViewController: wordSelectionVC)
         present(navController, animated: true) {
             // Reset the camera view after presenting word selection

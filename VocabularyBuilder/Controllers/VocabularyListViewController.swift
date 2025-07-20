@@ -1,16 +1,23 @@
+//
+//  Language.swift
+//  VocabularyBuilder
+//
+//  Created by Lucas on 19.07.25.
+//
+
 import UIKit
 import SwiftData
 
 class VocabularyListViewController: UIViewController {
-    private let modelContainer: ModelContainer
+    private let vocabularyRepository: VocabularyRepository
     private let ocrServiceManager: OCRServiceManager
     private var words: [VocabularyWord] = []
     private var filteredWords: [VocabularyWord] = []
     private var isSearching = false
     private var selectedLanguage: String? = nil
 
-    init(modelContainer: ModelContainer, ocrServiceManager: OCRServiceManager) {
-        self.modelContainer = modelContainer
+    init(vocabularyRepository: VocabularyRepository, ocrServiceManager: OCRServiceManager) {
+        self.vocabularyRepository = vocabularyRepository
         self.ocrServiceManager = ocrServiceManager
         super.init(nibName: nil, bundle: nil)
     }
@@ -88,11 +95,11 @@ class VocabularyListViewController: UIViewController {
         setupUI()
         loadWords()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadWords()
-        
+
         // Ensure navigation bar appearance is correct
         if let navigationBar = navigationController?.navigationBar {
             navigationBar.barStyle = .default
@@ -158,30 +165,23 @@ class VocabularyListViewController: UIViewController {
     }
 
     private func loadWords() {
-        let modelContext = modelContainer.mainContext
-        let descriptor = FetchDescriptor<VocabularyWord>(sortBy: [SortDescriptor(\.dateAdded, order: .reverse)])
-
-        do {
-            words = try modelContext.fetch(descriptor)
-            DispatchQueue.main.async {
-                self.updateFilteredWords()
-                self.tableView.reloadData()
-                self.updateEmptyState()
-                self.setupfilterButton()
-            }
-        } catch {
-            print("Error fetching words: \(error)")
+        words = vocabularyRepository.fetchWords()
+        DispatchQueue.main.async {
+            self.updateFilteredWords()
+            self.tableView.reloadData()
+            self.updateEmptyState()
+            self.setupfilterButton()
         }
     }
 
     private func updateFilteredWords() {
         var wordsToFilter = words
-        
+
         // Apply language filter first
         if let selectedLanguage = selectedLanguage {
             wordsToFilter = wordsToFilter.filter { $0.language == selectedLanguage }
         }
-        
+
         // Then apply search filter
         if isSearching, let searchText = searchController.searchBar.text, !searchText.isEmpty {
             filteredWords = wordsToFilter.filter { word in
@@ -201,30 +201,22 @@ class VocabularyListViewController: UIViewController {
 
     private func deleteWord(at indexPath: IndexPath) {
         let wordToDelete = filteredWords[indexPath.row]
-        let modelContext = modelContainer.mainContext
-
-        modelContext.delete(wordToDelete)
-
-        do {
-            try modelContext.save()
-            loadWords()
-        } catch {
-            print("Error deleting word: \(error)")
-        }
+        vocabularyRepository.deleteWord(wordToDelete)
+        loadWords()
     }
-    
+
     func navigateToWordDetail(_ word: VocabularyWord) {
         loadWords()
-        
+
         Task { @MainActor in
-            let wordDetailVC = WordDetailViewController(modelContainer: self.modelContainer, word: word)
+            let wordDetailVC = WordDetailViewController(vocabularyRepository: self.vocabularyRepository, word: word)
             self.navigationController?.pushViewController(wordDetailVC, animated: true)
         }
     }
-    
+
     private func buildLanguageFilter() -> UIMenu {
         let languages = getAvailableLanguages()
-        
+
         var menuActions: [UIAction] = []
 
         // Add language options
@@ -257,10 +249,9 @@ class VocabularyListViewController: UIViewController {
 
         return UIMenu(title: "Filter by Language", children: menuActions)
     }
-    
+
     private func getAvailableLanguages() -> [String] {
-        let languages = Set(words.compactMap { $0.language })
-        return Array(languages).sorted()
+        return vocabularyRepository.getAvailableLanguages()
     }
 }
 
@@ -293,7 +284,7 @@ extension VocabularyListViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
 
         let word = filteredWords[indexPath.row]
-        let wordDetailVC = WordDetailViewController(modelContainer: modelContainer, word: word)
+        let wordDetailVC = WordDetailViewController(vocabularyRepository: vocabularyRepository, word: word)
         navigationController?.pushViewController(wordDetailVC, animated: true)
     }
 

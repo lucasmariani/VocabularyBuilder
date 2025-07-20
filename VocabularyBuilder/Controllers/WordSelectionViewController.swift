@@ -1,3 +1,10 @@
+//
+//  Language.swift
+//  VocabularyBuilder
+//
+//  Created by Lucas on 19.07.25.
+//
+
 import UIKit
 import SwiftData
 
@@ -9,11 +16,11 @@ class WordSelectionViewController: UIViewController {
     private let capturedImage: UIImage
     private let ocrResult: OCRResult
     private var dictionaryService = DictionaryService()
-    private let modelContainer: ModelContainer
+    private let vocabularyRepository: VocabularyRepository
     private let textAnalysisService = TextAnalysisService()
     private let textFormattingService = TextFormattingService()
     weak var delegate: WordSelectionDelegate?
-    
+
     // Store analysis result for later word lookup during selection
     private lazy var textAnalysisResult: TextAnalysisResult = {
         return textAnalysisService.analyzeText(ocrResult.recognizedText)
@@ -21,21 +28,21 @@ class WordSelectionViewController: UIViewController {
 
     private lazy var textView: UITextView = {
         let textView = UITextView()
-        
+
         // Use stored analysis result for formatting
         let formattedText = textFormattingService.formatText(
             analysisResult: textAnalysisResult,
             configuration: .vocabularyLearning
         )
-        
+
         textView.attributedText = formattedText
         textView.isEditable = false
         textView.translatesAutoresizingMaskIntoConstraints = false
         return textView
     }()
 
-    init(modelContainer: ModelContainer, image: UIImage, ocrResult: OCRResult) {
-        self.modelContainer = modelContainer
+    init(vocabularyRepository: VocabularyRepository, image: UIImage, ocrResult: OCRResult) {
+        self.vocabularyRepository = vocabularyRepository
         self.capturedImage = image
         self.ocrResult = ocrResult
         super.init(nibName: nil, bundle: nil)
@@ -97,10 +104,10 @@ class WordSelectionViewController: UIViewController {
                         location: textView.offset(from: textView.beginningOfDocument, to: wordRange.start),
                         length: textView.offset(from: wordRange.start, to: wordRange.end)
                     )
-                    
+
                     // Lookup word analysis from stored result
                     let wordAnalysis = textAnalysisResult.wordAnalysis(bestMatchingRange: nsRange)
-                    
+
                     let linguisticContext = extractLinguisticContext(around: wordRange)
                     self.handleWordSelection(
                         cleanWord,
@@ -119,7 +126,7 @@ class WordSelectionViewController: UIViewController {
         if let lexicalClass = lexicalClass {
             message = "This \(lexicalClass.rawValue.lowercased()) will be added to your vocabulary list."
         }
-        
+
         let alert = UIAlertController(
             title: "Add \"\(word)\" to vocabulary?",
             message: message,
@@ -163,8 +170,6 @@ class WordSelectionViewController: UIViewController {
     }
 
     private func saveWordToDatabase(word: String, dictionaryEntry: DictionaryEntry) {
-        let modelContext = modelContainer.mainContext
-
         let definition = dictionaryEntry.meanings.first?.definitions.first?.definition ?? "No definition available"
         let partOfSpeech = dictionaryEntry.meanings.first?.partOfSpeech
 
@@ -181,17 +186,8 @@ class WordSelectionViewController: UIViewController {
             capturedImageData: capturedImage.jpegData(compressionQuality: 0.7)
         )
 
-        vocabularyWord.contexts.append(context)
-        context.vocabularyWord = vocabularyWord
-
-        modelContext.insert(vocabularyWord)
-
-        do {
-            try modelContext.save()
-        } catch {
-            showError("Failed to save word: \(error.localizedDescription)")
-            return
-        }
+        vocabularyRepository.addWord(vocabularyWord)
+        vocabularyRepository.addContext(context, to: vocabularyWord)
 
         dismiss(animated: true) { [weak self] in
             self?.delegate?.wordSelectionDidAddWord(vocabularyWord)
@@ -200,31 +196,31 @@ class WordSelectionViewController: UIViewController {
 
     private func extractLinguisticContext(around wordRange: UITextRange) -> String {
         let text = textView.attributedText?.string ?? ""
-        let nsRange = NSRange(location: textView.offset(from: textView.beginningOfDocument, to: wordRange.start), 
-                             length: textView.offset(from: wordRange.start, to: wordRange.end))
-        
+        let nsRange = NSRange(location: textView.offset(from: textView.beginningOfDocument, to: wordRange.start),
+                              length: textView.offset(from: wordRange.start, to: wordRange.end))
+
         let words = text.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
-        
+
         guard let range = Range(nsRange, in: text) else {
             return Array(words.prefix(5)).joined(separator: " ")
         }
-        
+
         let selectedWord = String(text[range])
         guard let selectedIndex = words.firstIndex(of: selectedWord) else {
             return Array(words.prefix(5)).joined(separator: " ")
         }
-        
+
         let contextWordsNeeded = 4 // 5 total words minus the selected word
         let wordsBeforeNeeded = min(contextWordsNeeded / 2, selectedIndex)
         let wordsAfterNeeded = min(contextWordsNeeded - wordsBeforeNeeded, words.count - selectedIndex - 1)
-        
+
         let startIndex = selectedIndex - wordsBeforeNeeded
         let endIndex = selectedIndex + wordsAfterNeeded
-        
+
         let contextWords = Array(words[startIndex...endIndex])
         return contextWords.joined(separator: " ")
     }
-    
+
     private func extractSentenceContaining(word: String) -> String {
         let sentences = ocrResult.recognizedText.components(separatedBy: CharacterSet(charactersIn: ".!?"))
 

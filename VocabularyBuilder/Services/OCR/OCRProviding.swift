@@ -10,7 +10,7 @@ protocol OCRProviding {
 enum OCRProviderType: String, CaseIterable {
     case vision = "vision"
     case openAI = "openAI"
-
+    
     var displayName: String {
         switch self {
         case .vision:
@@ -26,7 +26,7 @@ enum OCRProviderError: Error, LocalizedError {
     case apiKeyMissing
     case networkError(Error)
     case invalidResponse
-
+    
     var errorDescription: String? {
         switch self {
         case .providerNotAvailable:

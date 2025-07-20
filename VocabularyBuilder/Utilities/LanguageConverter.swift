@@ -15,7 +15,7 @@ struct LanguageConverter {
     static func languageName(for code: String) -> String? {
         Language(rawValue: code)?.englishName
     }
-
+    
     /// Converts a language code to its English name with a fallback
     /// - Parameters:
     ///   - code: The language code
@@ -24,7 +24,7 @@ struct LanguageConverter {
     static func languageName(for code: String, fallback: String = "Unknown") -> String {
         languageName(for: code) ?? fallback
     }
-
+    
     /// Converts an NLLanguage to its English name
     /// - Parameter language: The NLLanguage instance
     /// - Returns: The English name of the language

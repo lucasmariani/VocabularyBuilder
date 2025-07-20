@@ -13,7 +13,7 @@ class OpenAIOCRProvider: OCRProviding {
     func recognizeText(from image: UIImage) async -> OCRResult? {
         do {
             let recognizedText = try await self.openAIService.extractTextFromImage(image)
-
+            
             let result = OCRResult(
                 recognizedText: recognizedText,
                 confidence: 0.95, // OpenAI generally has high confidence
@@ -35,11 +35,11 @@ class OpenAIOCRProvider: OCRProviding {
         
         var request = RecognizeTextRequest()
         request.recognitionLevel = .fast // Use fast since we're not using the results
-
+        
         do {
             let handler = ImageRequestHandler(cgImage)
             let results = try await handler.perform(request)
-
+            
             if !results.isEmpty {
                 // Use the first observation as a template but with our OpenAI text
                 return [results[0]]

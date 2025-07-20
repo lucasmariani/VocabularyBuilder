@@ -1,9 +1,16 @@
+//
+//  Language.swift
+//  VocabularyBuilder
+//
+//  Created by Lucas on 19.07.25.
+//
+
 import UIKit
 import SwiftData
 
 class WordDetailViewController: UIViewController {
     private let word: VocabularyWord
-    private let modelContainer: ModelContainer
+    private let vocabularyRepository: VocabularyRepository
 
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -170,9 +177,9 @@ class WordDetailViewController: UIViewController {
         return button
     }()
 
-    init(modelContainer: ModelContainer, word: VocabularyWord) {
+    init(vocabularyRepository: VocabularyRepository, word: VocabularyWord) {
         self.word = word
-        self.modelContainer = modelContainer
+        self.vocabularyRepository = vocabularyRepository
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -327,16 +334,18 @@ class WordDetailViewController: UIViewController {
         }
 
         // Configure contexts
-        if word.contexts.isEmpty {
-            contextHeaderLabel.isHidden = true
-            contextStackView.isHidden = true
-        } else {
-            contextHeaderLabel.isHidden = false
-            contextStackView.isHidden = false
+        if let contexts = word.contexts {
+            if contexts.isEmpty {
+                contextHeaderLabel.isHidden = true
+                contextStackView.isHidden = true
+            } else {
+                contextHeaderLabel.isHidden = false
+                contextStackView.isHidden = false
 
-            for context in word.contexts {
-                let contextView = createContextView(for: context)
-                contextStackView.addArrangedSubview(contextView)
+                for context in contexts {
+                    let contextView = createContextView(for: context)
+                    contextStackView.addArrangedSubview(contextView)
+                }
             }
         }
 
@@ -367,24 +376,6 @@ class WordDetailViewController: UIViewController {
             sentenceLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12)
         ])
 
-        if let bookTitle = context.bookTitle {
-            let bookLabel = UILabel()
-            bookLabel.text = "From: \(bookTitle)"
-            bookLabel.font = UIFont.systemFont(ofSize: 12)
-            bookLabel.textColor = .tertiaryLabel
-            bookLabel.translatesAutoresizingMaskIntoConstraints = false
-
-            containerView.addSubview(bookLabel)
-
-            NSLayoutConstraint.activate([
-                bookLabel.topAnchor.constraint(equalTo: sentenceLabel.bottomAnchor, constant: 8),
-                bookLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
-                bookLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12)
-            ])
-
-            lastView = bookLabel
-        }
-
         if let imageData = context.capturedImageData, let image = UIImage(data: imageData) {
             let imageView = UIImageView(image: image)
             imageView.contentMode = .scaleAspectFit
@@ -410,20 +401,14 @@ class WordDetailViewController: UIViewController {
     }
 
     @objc private func markAsStudiedTapped() {
-        let modelContext = modelContainer.mainContext
-
-        word.studyCount += 1
+        vocabularyRepository.incrementStudyCount(for: word)
+        
         if word.studyCount % 5 == 0 && word.masteryLevel < 5 {
-            word.masteryLevel += 1
+            vocabularyRepository.updateMastery(for: word, level: word.masteryLevel + 1)
         }
-
-        do {
-            try modelContext.save()
-            studyCountValueLabel.text = "\(word.studyCount)"
-            masteryValueLabel.text = "\(word.masteryLevel)/5"
-        } catch {
-            print("Error updating study progress: \(error)")
-        }
+        
+        studyCountValueLabel.text = "\(word.studyCount)"
+        masteryValueLabel.text = "\(word.masteryLevel)/5"
     }
 
     @objc private func deleteButtonTapped() {
@@ -442,14 +427,7 @@ class WordDetailViewController: UIViewController {
     }
 
     private func deleteWord() {
-        let modelContext = modelContainer.mainContext
-        modelContext.delete(word)
-
-        do {
-            try modelContext.save()
-            navigationController?.popViewController(animated: true)
-        } catch {
-            print("Error deleting word: \(error)")
-        }
+        vocabularyRepository.deleteWord(word)
+        navigationController?.popViewController(animated: true)
     }
 }
