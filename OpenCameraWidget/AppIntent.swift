@@ -1,6 +1,6 @@
 //
 //  AppIntent.swift
-//  OpenWidget
+//  OpenCameraWidget
 //
 //  Created by Lucas on 20.07.25.
 //
